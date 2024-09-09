@@ -1,0 +1,40 @@
+export const products = [
+  {
+    id: 1,
+    name: 'e-778-camera',
+    displayName: 'SX-2357 Closed-Back Wireless Headphones',
+    price: '630',
+    description: 'High quality wireless headphones with closed-back design.',
+    images: [
+      'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fpin%2Ftng-hp-hnh-nn-full-hd-1920-x-1080-p-nht--622622717243741709%2F&psig=AOvVaw1M6-yU3GSSIXbZ-nVXR1PG&ust=1725952937434000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLjr4OyptYgDFQAAAAAdAAAAABAE',
+      '/img/dongho.png',
+      '/img/game.png',
+      '/img/watch.jpg',
+      '/img/watch.jpg',
+    ],
+  },
+  {
+    id: 2,
+    name: 'tai-nghe-rkx-gaming',
+    displayName: 'Tai nghe RKX Gaming',
+    price: '150',
+    description: 'Gaming over-ear headphones with 3.5mm jack.',
+    images: ['img/12.jpg', 'img/gaming.png', 'img/headphones.jpg'],
+  },
+  {
+    id: 3,
+    name: 'Ban phim',
+    displayName: 'SX-2357 Closed-Back Wireless Headphones',
+    price: '630',
+    description: 'High quality wireless headphones with closed-back design.',
+    images: ['/img/11.jpg', '/img/dongho.png', '/img/game.png', '/img/watch.jpg', '/img/watch.jpg'],
+  },
+  {
+    id: 4,
+    name: 'Chuot',
+    displayName: 'Tai nghe RKX Gaming',
+    price: '150',
+    description: 'Gaming over-ear headphones with 3.5mm jack.',
+    images: ['img/12.jpg', 'img/gaming.png', 'img/headphones.jpg'],
+  },
+]
