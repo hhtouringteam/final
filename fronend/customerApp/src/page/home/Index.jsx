@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import apiServer from '../../services/apiServer'
-import { UserContext } from '../../context/UserContext' // Import UserContext
+import { AuthContext } from '../../context/AuthContext' // Import AuthContext
 
 export default function Index() {
   const { addToCart } = useCart()
@@ -12,7 +12,7 @@ export default function Index() {
   const [bannerProducts, setBannerProducts] = useState([])
   const navigate = useNavigate()
 
-  const { user } = useContext(UserContext) // Lấy user từ UserContext
+  const { user } = useContext(AuthContext) // Lấy user từ AuthContext
 
   useEffect(() => {
     // Gọi API để lấy sản phẩm

@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserContext } from '../../context/UserContext' // Import UserContext
+import { AuthContext } from '../../context/AuthContext' // Import AuthContext
 
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('profile')
   const [orders, setOrders] = useState([]) // Lưu trữ lịch sử đơn hàng
-  const [avatarFile, setAvatarFile] = useState(null) // Để lưu trữ ảnh đại diện
+  const [avatar, setAvatar] = useState(null) // State để lưu file ảnh
   const [showChangePassword, setShowChangePassword] = useState(false) // Quản lý hiển thị form đổi mật khẩu
   const navigate = useNavigate()
 
-  const { user, logout, setUser } = useContext(UserContext) // Lấy user và logout từ UserContext
+  const { user, logout, setUser } = useContext(AuthContext) // Lấy user và logout từ AuthContext
 
   // Kiểm tra nếu người dùng chưa đăng nhập, điều hướng về trang đăng nhập
 
@@ -20,17 +20,17 @@ const UserProfile = () => {
 
     // Fetch lịch sử đơn hàng (giả sử có API)
     const fetchOrders = async () => {
-      try {
-        const response = await fetch('/api/orders', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        const orderData = await response.json()
-        setOrders(orderData)
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-      }
+      // try {
+      //   const response = await fetch('/api/orders', {
+      //     headers: {
+      //       Authorization: `Bearer ${localStorage.getItem('token')}`,
+      //     },
+      //   })
+      //   const orderData = await response.json()
+      //   setOrders(orderData)
+      // } catch (error) {
+      //   console.error('Error fetching orders:', error)
+      // }
     }
 
     fetchOrders()
@@ -41,36 +41,37 @@ const UserProfile = () => {
     navigate('/login')
   }
 
-  const handleAvatarChange = e => {
-    setAvatarFile(e.target.files[0])
+  const handleFileChange = e => {
+    setAvatar(e.target.files[0]) // Lấy file đã chọn
   }
 
-  const handleUploadAvatar = async e => {
+  const handleUpload = async e => {
     e.preventDefault()
+
     const formData = new FormData()
-    formData.append('avatar', avatarFile)
+    formData.append('avatar', avatar) // Thêm file avatar vào FormData
 
     try {
+      const token = localStorage.getItem('authToken') // Lấy token từ localStorage
+
       const response = await fetch('http://localhost:5000/api/users/upload-avatar', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       })
 
-      const res = await response.json()
-
-      if (response.ok) {
-        const updatedUser = { ...user, avatar: res.avatar }
-        setUser(updatedUser) // Cập nhật avatar trong context hoặc state
-        localStorage.setItem('user', JSON.stringify(updatedUser)) // Lưu thông tin user vào localStorage
-        alert('Avatar uploaded successfully!')
-      } else {
-        alert(res.message)
+      if (!response.ok) {
+        throw new Error('Upload avatar thất bại')
       }
+
+      const data = await response.json() // Chuyển response thành JSON
+      console.log(data) // Hiển thị dữ liệu nhận được từ server
+      alert('Upload avatar thành công!')
     } catch (error) {
-      console.error('Error uploading avatar:', error)
+      console.error(error) // Hiển thị lỗi nếu có
+      alert('Có lỗi xảy ra khi upload avatar')
     }
   }
 
@@ -139,7 +140,7 @@ const UserProfile = () => {
         return (
           <div>
             <h2 className="text-2xl font-semibold mb-6">Cài đặt tài khoản</h2>
-            <form onSubmit={handleUploadAvatar} className="space-y-6">
+            <form onSubmit={handleUpload} className="space-y-6">
               {/* Tải lên ảnh đại diện */}
               <div>
                 <label className="block text-lg font-medium text-gray-700 mb-2">Ảnh đại diện</label>
@@ -153,10 +154,10 @@ const UserProfile = () => {
                   )}
                   <div>
                     <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">
-                      <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                      <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                       Chọn ảnh
                     </label>
-                    {avatarFile && (
+                    {avatar && (
                       <button
                         type="submit"
                         className="ml-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300"

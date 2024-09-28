@@ -3,13 +3,13 @@
 import React, { useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { UserContext } from '../context/UserContext'
+import { AuthContext } from '../context/AuthContext'
 
 export default function Header() {
   const { cart } = useCart() // Lấy giỏ hàng từ CartContext
   const { totalItemsInCart } = useCart() // Tính tổng số lượng sản phẩm trong giỏ hàng
-  const { user } = useContext(UserContext) // Lấy trạng thái người dùng từ UserContext
-
+  const { user } = useContext(AuthContext) // Lấy trạng thái người dùng từ UserContext
+  console.log(user)
   return (
     <header className="bg-secondary">
       {/* Phần Welcome và các liên kết ở trên cùng */}
@@ -33,7 +33,7 @@ export default function Header() {
                 <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
               ) : (
                 <div className="w-8 h-8 bg-gray-400 text-white rounded-full flex items-center justify-center">
-                  {user.username[0].toUpperCase()}
+                  {user.username && user.username[0].toUpperCase()}
                 </div>
               )}
               <span className="text-dark mr-3">{user.username}</span>

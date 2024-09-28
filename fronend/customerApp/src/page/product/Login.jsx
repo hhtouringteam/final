@@ -2,12 +2,12 @@ import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { UserContext } from '../../context/UserContext' // Import UserContext
+import { AuthContext } from '../../context/AuthContext' // Import UserContext
 
 export default function Login() {
   // State cho form đăng nhập
   const [loginData, setLoginData] = useState({
-    email: '',
+    username: '',
     password: '',
   })
 
@@ -18,11 +18,10 @@ export default function Login() {
     email: '',
     password: '',
     confirmPassword: '',
-  
   })
 
   const navigate = useNavigate()
-  const { login, setUser } = useContext(UserContext) // Lấy hàm login từ UserContext
+  const { login } = useContext(AuthContext) // Lấy hàm login từ UserContext
 
   // Xử lý thay đổi input cho form đăng nhập
   const handleLoginChange = e => {
@@ -36,35 +35,40 @@ export default function Login() {
   const handleLoginSubmit = async e => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch('http://localhost:5000/api/users/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: loginData.email,
+          username: loginData.username, // Sử dụng email để đăng nhập
           password: loginData.password,
         }),
       })
 
-      const res = await response.json()
+      const data = await response.json()
 
       if (response.ok) {
-        const userData = {
-          username: res.user.username,
-          email: res.user.email,
-          avatar: res.user.avatar, // Đảm bảo avatar được lưu nếu có
-        }
-        console.log('User Data:', userData)
-        localStorage.setItem('user', JSON.stringify(userData)) // Lưu thông tin vào localStorage
-        setUser(userData) // Cập nhật thông tin người dùng trong Context
+        // Đăng nhập thành công, gọi hàm login từ AuthContext
+        login(data.token)
+
         toast.success('Đăng nhập thành công!')
-        navigate('/')
+
+        // Kiểm tra vai trò của người dùng
+        if (data.user.role === 'admin') {
+          // Điều hướng tới trang quản lý admin
+          window.location.href = 'http://localhost:3000/admin'
+        } else {
+          // Điều hướng tới trang home cho customer
+          navigate('/')
+        }
       } else {
-        toast.error(res.message || 'Đã xảy ra lỗi')
+        // Xử lý lỗi nếu thông tin đăng nhập sai
+        toast.error(data.error || 'Đăng nhập thất bại, vui lòng thử lại.')
       }
     } catch (error) {
-      toast.error('Đã xảy ra lỗi')
+      toast.error('Có lỗi xảy ra, vui lòng thử lại.')
+      console.error('Lỗi đăng nhập:', error)
     }
   }
   const handleRegisterChange = e => {
@@ -117,6 +121,7 @@ export default function Login() {
 
           // Gọi hàm login từ Context để cập nhật trạng thái người dùng
           login({
+            userId: loginRes.user._id,
             username: loginRes.user.username,
             email: loginRes.user.email,
             avatar: loginRes.user.avatar,
@@ -165,11 +170,11 @@ export default function Login() {
           <form onSubmit={handleLoginSubmit}>
             <div className="mb-4">
               <input
-                type="email"
-                name="email"
+                type="username"
+                name="username"
                 className="w-full px-4 py-2 border rounded border-gray-300"
                 placeholder="Enter email"
-                value={loginData.email}
+                value={loginData.username}
                 onChange={handleLoginChange}
                 required
               />
