@@ -8,6 +8,7 @@ const path = require("path");
 const morgan = require("morgan");
 const connectDB = require("./src/configs/db"); // Kết nối cơ sở dữ liệu
 const router = require("./src/routers"); // Định nghĩa các route
+const bodyParser = require("body-parser");
 
 const port = process.env.PORT || 5000; // Port cho server (sử dụng từ biến môi trường nếu có)
 app.use("/uploads", express.static("uploads"));
@@ -16,6 +17,7 @@ app.use("/uploads", express.static("uploads"));
 connectDB();
 
 // Middleware
+app.use(bodyParser.json());
 app.use(cors()); // Cho phép các yêu cầu từ frontend (CORS)
 app.use(express.json()); // Để parse dữ liệu JSON từ các request
 app.use(express.urlencoded({ extended: true })); // Để parse dữ liệu URL-encoded

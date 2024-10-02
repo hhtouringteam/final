@@ -1,14 +1,4 @@
-// const baseController = require("./baseController");
-// const vehicle = require("../../models/vehicleModel");
 
-// class adminVehicleController extends baseController {
-//   constructor() {
-//     super(vehicle); // Truyền model Vehicle vào BaseController
-//   }
-// }
-
-// module.exports = new adminVehicleController();
-// controllers/admin/adminVehicleController.js
 const baseController = require("./baseController");
 const Vehicle = require("../../models/vehicleModel");
 

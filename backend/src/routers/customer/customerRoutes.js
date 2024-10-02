@@ -2,22 +2,34 @@ const express = require("express");
 const router = express.Router();
 const customerController = require("../../controllers/customer/customerController");
 
-// Lấy danh sách tất cả sản phẩm
-router.get("/", customerController.getAllProducts.bind(customerController));
-
-// Lấy chi tiết một sản phẩm theo ID
-router.get("/:id", customerController.getProductById.bind(customerController));
-
-// Lọc sản phẩm theo danh mục hoặc thương hiệu
+// Định nghĩa các route và bind `this` cho các phương thức của controller
 router.get(
-  "/filter",
-  customerController.getProductsByFilter.bind(customerController)
+  "/products",
+  customerController.getAllProducts.bind(customerController)
 );
-
-// Tìm kiếm sản phẩm theo tên
 router.get(
-  "/search",
-  customerController.searchProductsByName.bind(customerController)
+  "/products/special",
+  customerController.getSpecialProducts.bind(customerController)
+);
+router.get(
+  "/products/featured",
+  customerController.getFeaturedProducts.bind(customerController)
+);
+router.get(
+  "/products/banner",
+  customerController.getBannerProducts.bind(customerController)
+);
+router.get(
+  "/products/trending",
+  customerController.getTrendingProducts.bind(customerController)
+);
+router.get(
+  "/products/:id",
+  customerController.getProductById.bind(customerController)
+);
+router.get(
+  "/products/filter",
+  customerController.getProductsByFilter.bind(customerController)
 );
 
 module.exports = router;

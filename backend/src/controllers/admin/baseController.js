@@ -39,8 +39,10 @@ class baseController {
       const data = req.body;
       const newProduct = new this.model({
         ...data, // Nhận tất cả dữ liệu từ req.body
+
         specifications: data.specifications, // Nhận và lưu trường specifications
       });
+      console.log("....", newProduct);
       await newProduct.save();
 
       // Populate các trường liên kết trước khi trả về
@@ -202,6 +204,7 @@ class baseController {
         .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
     }
   }
+  
 }
 
 module.exports = baseController;
