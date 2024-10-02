@@ -5,13 +5,12 @@ import { useCart } from '../../context/CartContext'
 import { useWishlist } from '../../context/WishlistContext' // Import useWishlist
 import { useParams } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
-
 import apiServer from '../../services/apiServer'
 
 export default function ProductDetail() {
-  const { slug } = useParams()
+  const { id } = useParams()
 
-  const [products, setProduct] = useState([])
+  const [products, setProduct] = useState(null)
 
   const { addToWishlist } = useWishlist()
   const { addToCart } = useCart()
@@ -23,19 +22,22 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await apiServer.getProductBySlug(slug)
+        const data = await apiServer.getProductById(id)
         setProduct(data)
-        let asd = null // -< []
+        console.log(data)
       } catch (error) {
         console.error('Error fetching product:', error)
       }
     }
 
-    fetchProduct()
-  }, [slug])
-  if (!products) {
+    if (id) {
+      fetchProduct()
+    }
+  }, [id])
+  if (!products || products.length === 0) {
     return <div>Product not found!</div>
   }
+
   const images = Array.isArray(products.image) ? products.image : [products.image]
 
   const goToPreviousImage = () => {
@@ -199,15 +201,15 @@ export default function ProductDetail() {
 
 // import React, { useEffect, useState } from 'react'
 // import { useParams } from 'react-router-dom' // Import useParams để lấy slug
-// import apiServer from '../../services/apiServer'
+
 // export default function Text() {
-//   const { slug } = useParams()
+//   const { id } = useParams()
 //   const [product, setProduct] = useState(null)
 
 //   useEffect(() => {
 //     const fetchProduct = async () => {
 //       try {
-//         const response = await fetch(`http://localhost:5000/products/${slug}`)
+//         const response = await fetch(`http://localhost:5000/api/customer/products/${id}`)
 //         const data = await response.json()
 //         setProduct(data)
 //       } catch (error) {
@@ -216,7 +218,7 @@ export default function ProductDetail() {
 //     }
 
 //     fetchProduct()
-//   }, [slug])
+//   }, [id])
 
 //   if (!product) {
 //     return <div>Product not found!</div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { AuthContext } from '../../context/AuthContext' // Import UserContext
-
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google'
 export default function Login() {
   // State cho form đăng nhập
   const [loginData, setLoginData] = useState({
@@ -21,132 +21,132 @@ export default function Login() {
   })
 
   const navigate = useNavigate()
-  const { login } = useContext(AuthContext) // Lấy hàm login từ UserContext
+  const { login } = useContext(AuthContext)
 
-  // Xử lý thay đổi input cho form đăng nhập
-  const handleLoginChange = e => {
-    setLoginData({
-      ...loginData,
+  // Hàm chung để xử lý thay đổi input cho form
+  const handleChange = (setState, e) => {
+    setState(prevState => ({
+      ...prevState,
       [e.target.name]: e.target.value,
+    }))
+  }
+
+  // Hàm chung để gửi yêu cầu fetch API
+  const handleFetch = async (url, method, body) => {
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     })
+    const data = await response.json()
+    if (!response.ok) {
+      toast.error(data.error || 'Có lỗi xảy ra, vui lòng thử lại.')
+      throw new Error(data.error || 'Request failed')
+    }
+    return data
+  }
+
+  // Hàm chung để xử lý đăng nhập
+  const processLogin = (data, navigate) => {
+    localStorage.setItem('token', data.token)
+    login(data.token)
+
+    toast.success('Đăng nhập thành công!')
+
+    if (data.user.role === 'admin') {
+      window.location.href = 'http://localhost:3000/admin'
+    } else {
+      navigate('/')
+    }
   }
 
   // Xử lý submit form đăng nhập
   const handleLoginSubmit = async e => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:5000/api/users/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: loginData.username, // Sử dụng email để đăng nhập
-          password: loginData.password,
-        }),
+      const data = await handleFetch('http://localhost:5000/api/users/auth/login', 'POST', {
+        username: loginData.username,
+        password: loginData.password,
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        // Đăng nhập thành công, gọi hàm login từ AuthContext
-        login(data.token)
-
-        toast.success('Đăng nhập thành công!')
-
-        // Kiểm tra vai trò của người dùng
-        if (data.user.role === 'admin') {
-          // Điều hướng tới trang quản lý admin
-          window.location.href = 'http://localhost:3000/admin'
-        } else {
-          // Điều hướng tới trang home cho customer
-          navigate('/')
-        }
-      } else {
-        // Xử lý lỗi nếu thông tin đăng nhập sai
-        toast.error(data.error || 'Đăng nhập thất bại, vui lòng thử lại.')
-      }
+      processLogin(data, navigate)
     } catch (error) {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại.')
       console.error('Lỗi đăng nhập:', error)
     }
   }
-  const handleRegisterChange = e => {
-    setRegisterData({
-      ...registerData,
-      [e.target.name]: e.target.value,
-    })
-  }
+
   // Xử lý submit form đăng ký
   const handleRegisterSubmit = async e => {
     e.preventDefault()
+
     if (registerData.password !== registerData.confirmPassword) {
       toast.error('Mật khẩu xác nhận không khớp')
       return
     }
+
+    const username = `${registerData.firstName}${registerData.lastName}`.replace(/\s+/g, '')
+
     try {
-      const response = await fetch('http://localhost:5000/api/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: `${registerData.firstName} ${registerData.lastName}`,
-          email: registerData.email,
-          password: registerData.password,
-        }),
+      await handleFetch('http://localhost:5000/api/users/auth/register', 'POST', {
+        username,
+        email: registerData.email,
+        password: registerData.password,
       })
-
-      const res = await response.json()
-
-      if (response.ok) {
-        toast.success('Đăng ký thành công!')
-
-        // Thực hiện đăng nhập sau khi đăng ký thành công
-        const loginResponse = await fetch('http://localhost:5000/api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: registerData.email,
-            password: registerData.password,
-          }),
-        })
-
-        const loginRes = await loginResponse.json()
-
-        if (loginResponse.ok) {
-          localStorage.setItem('token', loginRes.token)
-
-          // Gọi hàm login từ Context để cập nhật trạng thái người dùng
-          login({
-            userId: loginRes.user._id,
-            username: loginRes.user.username,
-            email: loginRes.user.email,
-            avatar: loginRes.user.avatar,
-            role: loginRes.user.role,
-          })
-
-          navigate('/') // Chuyển hướng đến trang chủ
-        } else {
-          toast.error(loginRes.message || 'Đã xảy ra lỗi khi đăng nhập')
-        }
-      } else {
-        toast.error(res.message || 'Đã xảy ra lỗi')
-      }
+      toast.success('Đăng ký thành công!')
+      // Tự động đăng nhập sau khi đăng ký
+      const data = await handleFetch('http://localhost:5000/api/users/auth/login', 'POST', {
+        username,
+        password: registerData.password,
+      })
+      processLogin(data, navigate)
     } catch (error) {
-      toast.error('Đã xảy ra lỗi')
+      console.error('Lỗi khi đăng ký:', error)
     }
   }
+
+  // Các hàm onChange cho input
+  const handleLoginChange = e => handleChange(setLoginData, e)
+  const handleRegisterChange = e => handleChange(setRegisterData, e)
 
   const handleFacebookLogin = () => {
     console.log('Facebook login clicked')
   }
 
-  const handleGoogleLogin = () => {
-    console.log('Google+ login clicked')
+  const handleGoogleLoginSuccess = async response => {
+    try {
+      // Gửi token idToken đến backend để xác thực
+      const res = await fetch('http://localhost:5000/api/users/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: response.credential, // Gửi token từ Google đến backend
+        }),
+      })
+
+      const data = await res.json()
+      console.log('Response from backend:', data) // Kiểm tra dữ liệu nhận từ backend
+      if (res.ok) {
+        login(data.token) // Lưu token từ backend
+        toast.success('Đăng nhập bằng Google thành công!')
+        navigate('/')
+      } else {
+        toast.error('Đăng nhập bằng Google thất bại!')
+      }
+    } catch (error) {
+      console.error('Google login error:', error)
+      toast.error('Có lỗi xảy ra khi đăng nhập bằng Google.')
+    }
   }
+
+  const handleGoogleLoginFailure = error => {
+    console.error('Google login error:', error)
+    toast.error('Đăng nhập bằng Google thất bại!')
+  }
+  // const googleLogin = useGoogleLogin({
+  //   onSuccess: handleGoogleLoginSuccess,
+  //   onError: handleGoogleLoginFailure,
+  // })
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -156,9 +156,11 @@ export default function Login() {
           <button className="bg-blue-600 text-white px-4 py-2 rounded mr-2" onClick={handleFacebookLogin}>
             Facebook
           </button>
-          <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleGoogleLogin}>
+          {/* <button className="bg-red-600 text-white px-4 py-2 rounded flex items-center" onClick={googleLogin}>
             Google+
-          </button>
+          </button> */}
+
+          <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginFailure} />
         </div>
         <hr className="w-118 border-t-2 border-gray-700 mb-6" />
       </div>

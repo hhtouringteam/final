@@ -10,6 +10,7 @@ export default function Index() {
   const [specialProducts, setSpecialProducts] = useState([])
   const [trendingProducts, setTrendingProducts] = useState([])
   const [bannerProducts, setBannerProducts] = useState([])
+
   const navigate = useNavigate()
 
   const { user } = useContext(AuthContext) // Lấy user từ AuthContext
@@ -19,6 +20,7 @@ export default function Index() {
     const fetchData = async () => {
       try {
         const featuredData = await apiServer.getFeaturedProducts()
+        console.log('Featured Products:', featuredData) // Kiểm tra dữ liệu
         setFeaturedProducts(featuredData)
 
         const specialData = await apiServer.getSpecialProducts()
@@ -28,6 +30,7 @@ export default function Index() {
         setTrendingProducts(trendingData)
 
         const bannerData = await apiServer.getBannerProducts()
+        console.log('bannerData Products:', bannerData) // Kiểm tra dữ liệu
         setBannerProducts(bannerData)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -37,9 +40,11 @@ export default function Index() {
     fetchData()
   }, [navigate])
 
-  const handleProductClick = slug => {
-    navigate(`/products/${slug}`)
+  const handleProductClick = id => {
+    console.log('ID--------:', id)
+    navigate(`/product/${id}`) // Điều hướng đến trang chi tiết sản phẩm với ID
   }
+
   return (
     <div className="container mx-auto px-20">
       {user && (
@@ -102,34 +107,32 @@ export default function Index() {
 
       <div className="flex flex-wrap -mx-4">
         {featuredProducts.map(featured => (
-          <div className="w-full md:w-1/4 px-4 mb-4" key={featured.name}>
+          <div className="w-full md:w-1/4 px-4 mb-4" key={featured._id}>
             <div className="card shadow-lg relative h-118 group overflow-hidden rounded-lg">
-              <div key={featured._id} onClick={() => handleProductClick(featured.slug)}>
-                <div className="card-icons absolute top-0 right-0 p-2 flex space-x-2">
-                  <NavLink to="/wishlist" className="btn btn-outline-primary">
-                    <i className="fas fa-heart" />
-                  </NavLink>
-                  <NavLink to="/compare" className="btn btn-outline-primary">
-                    <i className="fas fa-sync-alt" />
-                  </NavLink>
-                </div>
+              <div
+                onClick={() => {
+                  console.log('featuredProducts ID:', featured._id)
+                  handleProductClick(featured._id)
+                }}
+              >
+                {' '}
+                {/* Điều hướng đến chi tiết sản phẩm */}
                 <div className="overflow-hidden transform transition-transform duration-300 group-hover:-translate-y-4">
                   <img
                     src={featured.image}
                     className="w-full mt-5 pt-10 h-auto transform transition-transform duration-300 group-hover:-translate-y-4"
                     alt={featured.name}
                   />
-
                   <div className="card-body flex flex-col pl-4 text-sm mt-10 py-2 transform transition-transform duration-300 group-hover:-translate-y-4">
                     <p>{featured.name}</p>
-                    <p className="text-lg font-bold py-2 pt-3">{featured.price}</p>{' '}
+                    <p className="text-lg font-bold py-2 pt-3">${featured.price}</p>
                   </div>
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 w-full bg-blue-600 text-white text-center py-4 opacity-0 transform translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 rounded-t-lg">
                 <button
                   className="w-full  rounded-lg"
-                  onClick={() => addToCart(featured)} // Gọi hàm addToCart khi người dùng nhấn vào nút
+                  onClick={() => addToCart(featured)} // Thêm sản phẩm nổi bật vào giỏ hàng
                 >
                   Add to Cart
                 </button>
@@ -169,27 +172,19 @@ export default function Index() {
       <h1 className="text-left my-4 text-4xl">Trending Products</h1>
       <div className="flex flex-wrap -mx-4 my-4">
         {trendingProducts.map(trending => (
-          <div className="w-full md:w-1/3 px-4 mb-4" key={trending.id}>
+          <div className="w-full md:w-1/3 px-4 mb-4" key={trending._id}>
             <div className="card shadow-lg relative group">
               <div className="card-body flex items-center p-4">
                 <img src={trending.image} className="w-48 h-auto ml-auto" alt={trending.name} />
-                <div className="card-icons absolute top-0 right-0 p-2 flex space-x-2">
-                  <NavLink to="!" className="btn btn-outline-primary">
-                    <i className="fas fa-heart" />
-                  </NavLink>
-                  <NavLink to="!" className="btn btn-outline-primary">
-                    <i className="fas fa-sync-alt" />
-                  </NavLink>
-                </div>
                 <div className="flex-grow pl-5">
                   <h2 className="text-lg pt-5">{trending.name}</h2>
-                  <p className="text-lg">{trending.price}</p>
+                  <p className="text-lg">${trending.price}</p>
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300  rounded-t-lg">
+              <div className="absolute bottom-0 right-0 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 rounded-t-lg">
                 <button
                   className="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-lg"
-                  onClick={() => addToCart(trending)}
+                  onClick={() => addToCart(trending)} // Thêm sản phẩm xu hướng vào giỏ hàng
                 >
                   <i className="fas fa-shopping-cart text-lg"></i>
                 </button>

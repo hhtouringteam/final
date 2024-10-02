@@ -1,30 +1,98 @@
 // src/components/Header.js
 
-import React, { useContext } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import React, { useContext, useState, useEffect } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { AuthContext } from '../context/AuthContext'
-
+import Select from 'react-select'
 export default function Header() {
-  const { cart } = useCart() // Lấy giỏ hàng từ CartContext
   const { totalItemsInCart } = useCart() // Tính tổng số lượng sản phẩm trong giỏ hàng
-  const { user } = useContext(AuthContext) // Lấy trạng thái người dùng từ UserContext
-  console.log(user)
+  const { user } = useContext(AuthContext) // Lấy trạng thái người dùng từ AuthContext
+  const [searchQuery, setSearchQuery] = useState('') // State để lưu từ khóa tìm kiếm
+  const [categories, setCategories] = useState([]) // State để lưu danh sách danh mục
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Fetch danh sách danh mục từ backend khi component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/categories')
+        const data = await response.json()
+        if (response.ok) {
+          // Chuyển đổi dữ liệu thành định dạng phù hợp với react-select
+          const options = data.categories.map(category => ({
+            value: category._id,
+            label: category.name,
+          }))
+          // Thêm tùy chọn "All Categories" ở đầu danh sách
+          setCategories([{ value: 'all', label: 'All Categories' }, ...options])
+        } else {
+          console.error('Error fetching categories:', data.message)
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  // Hàm xử lý khi người dùng chọn một danh mục
+  const handleCategoryChange = selectedOption => {
+    if (selectedOption.value === 'all') {
+      // Nếu chọn "All Categories", điều hướng tới Tcsp không có bộ lọc
+      navigate('/Tcsp')
+    } else {
+      // Nếu chọn một danh mục cụ thể, điều hướng tới Tcsp với tham số category
+      const params = new URLSearchParams()
+      params.append('category', selectedOption.value)
+      navigate(`/Tcsp?${params.toString()}`)
+    }
+  }
+
+  // Hàm xử lý khi tìm kiếm
+  const handleSearch = async e => {
+    e.preventDefault()
+
+    if (searchQuery.trim()) {
+      try {
+        // Xây dựng query string với tham số name
+        const params = new URLSearchParams()
+        params.append('name', searchQuery.trim())
+
+        // Điều hướng tới trang Tcsp với query string
+        navigate(`/Tcsp?${params.toString()}`)
+      } catch (error) {
+        console.error('Error navigating to search results:', error)
+      }
+    } else {
+      // Nếu tìm kiếm rỗng, điều hướng tới Tcsp không có bộ lọc
+      navigate('/Tcsp')
+    }
+  }
+
+  // Hàm xử lý khi nhấn nút "View All Products"
+  const handleViewAll = () => {
+    navigate('/Tcsp', { replace: true }) // Sử dụng replace để tránh tạo lịch sử điều hướng mới
+  }
+
   return (
     <header className="bg-secondary">
       {/* Phần Welcome và các liên kết ở trên cùng */}
-      <div className="container mx-auto py-1 flex justify-between items-center border-b-2 p-10 bg-slate-500">
-        <div>WELCOME TO PCSTAR STORE</div>
+      <div className="container mx-auto py-1 flex justify-between items-center border-b-2 p-4 bg-slate-500">
+        <div className="text-white font-semibold">WELCOME TO PCSTAR STORE</div>
+
         <div className="flex items-center">
-          <NavLink to="!" className="text-dark no-underline mx-3">
+          <NavLink to="/store-locator" className="text-white no-underline mx-3 ">
             STORE LOCATOR
           </NavLink>
-          <NavLink to="!" className="text-dark no-underline mx-3">
+          <NavLink to="/free-shipping-returns" className="text-white no-underline mx-3">
             FREE SHIPPING & RETURNS
           </NavLink>
           {/* Hiển thị ảnh đại diện hoặc nút MY ACCOUNT */}
           {!user ? (
-            <NavLink to="/login" className="text-dark no-underline mx-3">
+            <NavLink to="/login" className="text-white no-underline mx-3">
               MY ACCOUNT
             </NavLink>
           ) : (
@@ -36,7 +104,7 @@ export default function Header() {
                   {user.username && user.username[0].toUpperCase()}
                 </div>
               )}
-              <span className="text-dark mr-3">{user.username}</span>
+              <span className="text-white mr-3">{user.username}</span>
             </div>
           )}
         </div>
@@ -44,48 +112,83 @@ export default function Header() {
 
       {/* Phần chính giữa chứa tên website, tìm kiếm và giỏ hàng */}
       <div className="container mx-auto py-8 flex justify-between items-center p-10">
-        <div className="text-4xl font-bold">HHtouringteam</div>
+        <NavLink to="/" className="text-4xl font-bold text-black">
+          HHtouringteam
+        </NavLink>
         <div className="flex items-center gap-4">
-          <select className="border-2 rounded-full text-center px-4 py-1">
-            <option value="all">all categories</option>
-            {/* Thêm các tùy chọn khác nếu cần */}
-          </select>
-          <div className="relative">
-            <input
-              type="text"
-              className="border-2 rounded-full pl-4 pr-12 py-1 w-full"
-              placeholder="Search for product..."
+          <div className="w-64 rounded-full text-center px-4 py-1">
+            <Select
+              options={categories}
+              onChange={handleCategoryChange}
+              placeholder="Select Category"
+              isSearchable
+              classNamePrefix="react-select"
+              styles={{
+                control: provided => ({
+                  ...provided,
+                  borderColor: '#e5e7eb', // Tailwind gray-300
+                  borderRadius: '9999px', // Tailwind full rounded
+                  boxShadow: 'none',
+                  '&:hover': {
+                    borderColor: '#d1d5db', // Tailwind gray-300
+                  },
+                }),
+                menu: provided => ({
+                  ...provided,
+                  zIndex: 9999,
+                }),
+              }}
             />
-            <button className="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <i className="fas fa-search" />
-            </button>
           </div>
+          <div className="relative">
+            <form onSubmit={handleSearch} className="flex">
+              <input
+                type="text"
+                className="border-2 rounded-full pl-4 pr-12 py-1 w-64"
+                placeholder="Search for product..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)} // Cập nhật giá trị từ khóa tìm kiếm
+              />
+              <button className="absolute inset-y-0 right-0 pr-3 flex items-center" type="submit">
+                <i className="fas fa-search text-gray-600" />
+              </button>
+            </form>
+          </div>
+          {/* Nút "View All Products" */}
+          {location.pathname === '/Tcsp' && location.search && (
+            <button
+              onClick={handleViewAll}
+              className="ml-4 bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors"
+            >
+              View All Products
+            </button>
+          )}
         </div>
 
         {/* Phần chứa các icon */}
-        <div className="flex items-center gap-3">
-          <NavLink to="!" className="text-dark no-underline text-2xl">
+        <div className="flex items-center gap-4">
+          <NavLink to="/refresh" className="text-black no-underline text-2xl hover:text-gray-300">
             <i className="fas fa-sync-alt" />
           </NavLink>
 
           {/* Icon người dùng để vào trang cá nhân */}
           {user ? (
-            <NavLink to="/user" className="text-dark no-underline text-2xl">
+            <NavLink to="/profile" className="text-black no-underline text-2xl hover:text-gray-300">
               <i className="fas fa-user" />
             </NavLink>
           ) : (
-            <NavLink to="/login" className="text-dark no-underline text-2xl">
+            <NavLink to="/login" className="text-black no-underline text-2xl hover:text-gray-300">
               <i className="fas fa-user" />
             </NavLink>
           )}
 
-          <NavLink to="/wishlist" className="text-dark no-underline text-2xl">
+          <NavLink to="/wishlist" className="text-black no-underline text-2xl hover:text-gray-300">
             <i className="fas fa-heart" />
           </NavLink>
 
           {/* Icon giỏ hàng */}
           <NavLink to="/cart" className="relative">
-            <i className="fas fa-shopping-cart text-2xl" />
+            <i className="fas fa-shopping-cart text-black text-2xl hover:text-gray-300" />
             <span className="absolute -top-1 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
               {totalItemsInCart}
             </span>
@@ -94,26 +197,50 @@ export default function Header() {
       </div>
 
       {/* Phần điều hướng chính */}
-      <nav className="bg-blue-500 py-3 p-10">
-        <div className="container mx-auto flex justify-between">
+      <nav className="bg-blue-500 py-3 p-4">
+        <div className="container mx-auto flex justify-between items-center">
           <div className="flex gap-4">
-            <NavLink className="text-white no-underline text-lg" to="/" activeClassName="font-bold">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `text-white no-underline text-lg px-3 py-2 rounded ${isActive ? 'bg-blue-700' : 'hover:bg-blue-600'}`
+              }
+            >
               Home
             </NavLink>
-            <NavLink className="text-white no-underline text-lg" to="!" activeClassName="font-bold">
+            <NavLink
+              to="/support"
+              className={({ isActive }) =>
+                `text-white no-underline text-lg px-3 py-2 rounded ${isActive ? 'bg-blue-700' : 'hover:bg-blue-600'}`
+              }
+            >
               Support
             </NavLink>
-            <NavLink className="text-white no-underline text-lg" to="/Tcsp" activeClassName="font-bold">
+            <NavLink
+              to="/Tcsp"
+              className={({ isActive }) =>
+                `text-white no-underline text-lg px-3 py-2 rounded ${isActive ? 'bg-blue-700' : 'hover:bg-blue-600'}`
+              }
+            >
               Shop
             </NavLink>
-            <NavLink className="text-white no-underline text-lg" to="/blog" activeClassName="font-bold">
+            <NavLink
+              to="/blog"
+              className={({ isActive }) =>
+                `text-white no-underline text-lg px-3 py-2 rounded ${isActive ? 'bg-blue-700' : 'hover:bg-blue-600'}`
+              }
+            >
               Blog
             </NavLink>
           </div>
 
-          <NavLink to="!" className="inline-flex items-center text-center rounded gap-2 group text-lg px-5 text-white">
-            <span className="qodef-m-text"> Weekly Discount </span>
+          <NavLink
+            to="/weekly-discount"
+            className="inline-flex items-center text-center rounded gap-2 group text-lg px-5 text-white hover:bg-blue-600"
+          >
+            <span className="transition-opacity duration-300 group-hover:opacity-100">Weekly Discount</span>
             <span className="qodef-m-icon flex items-center justify-center relative w-3 h-3">
+              {/* Icon SVG có thể tùy chỉnh */}
               <svg
                 className="absolute group-hover:opacity-100 duration-300 transition-all opacity-0"
                 xmlns="http://www.w3.org/2000/svg"

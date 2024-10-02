@@ -3,7 +3,7 @@ import config from '../configs/config'
 const apiServer = {
   getSpecialProducts: async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/products/special-products`)
+      const response = await fetch(`${config.apiUrl}/products/special`)
       if (!response.ok) {
         throw new Error('Error fetching special products')
       }
@@ -16,7 +16,7 @@ const apiServer = {
 
   getFeaturedProducts: async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/products/featured-products`)
+      const response = await fetch(`${config.apiUrl}/products`)
       if (!response.ok) {
         throw new Error('Error fetching featured products')
       }
@@ -29,7 +29,7 @@ const apiServer = {
 
   getBannerProducts: async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/products/banner-products`)
+      const response = await fetch(`${config.apiUrl}/products/banner`)
       if (!response.ok) {
         throw new Error('Error fetching banner products')
       }
@@ -42,7 +42,7 @@ const apiServer = {
 
   getTrendingProducts: async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/products/trending-products`)
+      const response = await fetch(`${config.apiUrl}/products/trending`)
       if (!response.ok) {
         throw new Error('Error fetching trending products')
       }
@@ -53,13 +53,13 @@ const apiServer = {
     }
   },
 
-  getProductBySlug: async slug => {
+  getProductById: async id => {
     try {
-      const response = await fetch(`${config.apiUrl}/products/${slug}`)
+      const response = await fetch(`${config.apiUrl}/products/${id}`)
       if (!response.ok) {
-        throw new Error('Error fetching product by slug')
+        throw new Error('Error fetching product by id')
       }
-      return response.json()
+      return await response.json()
     } catch (error) {
       console.error('Error:', error)
       throw error

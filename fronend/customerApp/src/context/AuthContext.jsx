@@ -13,15 +13,16 @@ export const AuthProvider = ({ children }) => {
   const login = token => {
     try {
       const decoded = jwtDecode(token) // Giải mã token
-      console.log('decoded  ---------', decoded)
+      console.log('token', decoded)
       const userData = {
-        userId: decoded._id,
+        userId: decoded.userId || decoded._id,
         role: decoded.role,
         username: decoded.username,
         email: decoded.email,
         avatar: decoded.avatar,
         token, // Lưu token vào userData để sử dụng sau
       }
+      console.log('  console.log(userData)', userData)
       setUser(userData)
       localStorage.setItem('authToken', token) // Lưu token vào localStorage
       localStorage.setItem('user', JSON.stringify(userData)) // Lưu thông tin người dùng vào localStorage
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(token)
         if (decoded.exp * 1000 > Date.now()) {
           const userData = {
-            userId: decoded._id,
+            userId: decoded.userId || decoded._id,
             role: decoded.role,
             username: decoded.username,
             email: decoded.email,

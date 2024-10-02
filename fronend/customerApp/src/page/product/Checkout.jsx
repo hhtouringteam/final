@@ -1,61 +1,80 @@
-import React from 'react'
-import { useCart } from '../../context/CartContext' // Giả sử bạn đã tạo CartContext
-
+// src/components/Checkout.js
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 export default function Checkout() {
-  const { cart, totalPriceInCart, totalItemsInCart } = useCart()
+  const [orderData, setOrderData] = useState(null)
+  const navigate = useNavigate()
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
+
+  // Lấy dữ liệu đơn hàng từ localStorage khi trang được tải
+  useEffect(() => {
+    const savedOrderData = localStorage.getItem('orderData')
+    if (savedOrderData) {
+      setOrderData(JSON.parse(savedOrderData))
+    } else {
+      // Nếu không có dữ liệu đơn hàng, điều hướng người dùng về trang giỏ hàng
+      navigate('/cart')
+    }
+  }, [navigate])
+
+  // Hàm xử lý khi nhấn nút "Place Order"
+  const handlePlaceOrder = async () => {
+    if (orderData) {
+      try {
+        // Gửi yêu cầu thanh toán qua MoMo
+        const response = await fetch(`${API_BASE_URL}/orders/momo` || 'http://localhost:5000/api/orders/momo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'any_value',
+          },
+          body: JSON.stringify({
+            orderId: orderData._id,
+            totalPrice: orderData.totalPrice,
+          }),
+        })
+
+        const data = await response.json()
+
+        if (data.payUrl) {
+          toast.success('Đang chuyển hướng đến MoMo để thanh toán...')
+          window.location.href = data.payUrl
+        } else {
+          console.error('MoMo payment failed:', data.message || 'Unknown error')
+          toast.error('Thanh toán qua MoMo thất bại. Vui lòng thử lại sau.')
+        }
+      } catch (error) {
+        console.error('Error placing order', error)
+        toast.error('Đã xảy ra lỗi trong quá trình xử lý đơn hàng. Vui lòng thử lại.')
+      }
+    }
+  }
+
+  if (!orderData) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="py-5 mt-4 p-10 bg-white shadow-md">
-      {/* Coupon Section */}
-      <div className="flex mb-3">
-        <div className="flex-1">
-          <input
-            type="text"
-            className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-            placeholder="Have a coupon?"
-          />
-        </div>
-        <div className="ml-4">
-          <button className="btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            Click here to enter your code
-          </button>
-        </div>
-      </div>
-
       {/* Billing Information */}
       <div className="mb-3">
         <h2 className="text-2xl font-semibold">Billing details</h2>
         <form id="billing-form">
-          <div className="flex flex-wrap -mx-2">
-            <div className="w-full md:w-1/2 px-2 mb-3">
-              <input
-                type="text"
-                className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-                placeholder="First name *"
-                required
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-2 mb-3">
-              <input
-                type="text"
-                className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-                placeholder="Last name *"
-                required
-              />
-            </div>
-          </div>
           <div className="mb-3">
             <input
               type="text"
               className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="Company name (optional)"
+              placeholder="Username *"
+              required
             />
           </div>
+          {/* Thêm các trường địa chỉ */}
           <div className="mb-3">
             <input
               type="text"
               className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="Country / Region *"
+              placeholder="Country"
               required
             />
           </div>
@@ -64,30 +83,6 @@ export default function Checkout() {
               type="text"
               className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
               placeholder="Street address *"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="Town / City *"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="State / County"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-input w-full px-4 py-2 border border-gray-300 rounded-md"
-              placeholder="ZIP / Postal Code *"
               required
             />
           </div>
@@ -111,49 +106,48 @@ export default function Checkout() {
       </div>
 
       {/* Order Summary */}
-      <div className="mb-3">
+      <div className="py-5 mt-4 p-10 bg-white shadow-md">
         <h2 className="text-2xl font-semibold">Your order</h2>
-        {cart.map(item => (
-          <p key={item.id}>{item.name}</p>
+        {orderData.cartItems.map(item => (
+          <div key={item.productId} className="mb-2">
+            <p>
+              <strong>Product:</strong> {item.name}
+            </p>
+            <p>
+              <strong>Quantity:</strong> {item.quantity}
+            </p>
+            <p>
+              <strong>Price:</strong> ${item.price} VND
+            </p>
+            <hr />
+          </div>
         ))}
-        <p>Total quantity: {totalItemsInCart} product</p>
-        <p>Subtotal: ${totalPriceInCart}</p>
-        <p>Total: ${totalPriceInCart}</p>
-      </div>
 
-      {/* Payment Methods */}
-      <div className="mb-3">
-        <h2 className="text-2xl font-semibold">Payment method</h2>
-        <form id="payment-form">
-          <div className="form-check mb-2">
-            <input className="form-radio text-blue-600" type="radio" name="payment" id="direct-bank" defaultChecked />
-            <label className="ml-2" htmlFor="direct-bank">
-              Direct Bank Transfer
-            </label>
-          </div>
-          <div className="form-check mb-2">
-            <input className="form-radio text-blue-600" type="radio" name="payment" id="check-payment" />
-            <label className="ml-2" htmlFor="check-payment">
-              Check Payment
-            </label>
-          </div>
-          <div className="form-check mb-2">
-            <input className="form-radio text-blue-600" type="radio" name="payment" id="cash-delivery" />
-            <label className="ml-2" htmlFor="cash-delivery">
-              Cash on Delivery
-            </label>
-          </div>
-        </form>
-      </div>
+        <p className="mt-4">
+          <strong>Total:</strong> ${orderData.totalPrice} VND
+        </p>
 
-      {/* Submit Button */}
-      <button
-        form="billing-form"
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-      >
-        Place Order
-      </button>
+        {/* Payment Methods */}
+        <div className="mb-3 mt-6">
+          <h2 className="text-2xl font-semibold">Payment method</h2>
+          <form id="payment-form">
+            <div className="form-check mb-2">
+              <input className="form-radio text-blue-600" type="radio" name="payment" id="momo" defaultChecked />
+              <label className="ml-2" htmlFor="momo">
+                Thanh toán qua MoMo
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <button
+          type="button"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          onClick={handlePlaceOrder} // Gọi hàm thanh toán khi nhấn "Place Order"
+        >
+          Place Order
+        </button>
+      </div>
     </div>
   )
 }
