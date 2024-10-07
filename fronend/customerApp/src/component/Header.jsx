@@ -3,10 +3,14 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
 import { AuthContext } from '../context/AuthContext'
 import Select from 'react-select'
+import { toast } from 'react-toastify' // Nếu bạn sử dụng react-toastify
+
 export default function Header() {
   const { totalItemsInCart } = useCart() // Tính tổng số lượng sản phẩm trong giỏ hàng
+  const { totalItemsInWishlist } = useWishlist()
   const { user } = useContext(AuthContext) // Lấy trạng thái người dùng từ AuthContext
   const [searchQuery, setSearchQuery] = useState('') // State để lưu từ khóa tìm kiếm
   const [categories, setCategories] = useState([]) // State để lưu danh sách danh mục
@@ -115,7 +119,7 @@ export default function Header() {
         <NavLink to="/" className="text-4xl font-bold text-black">
           HHtouringteam
         </NavLink>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 mr-80 ">
           <div className="w-64 rounded-full text-center px-4 py-1">
             <Select
               options={categories}
@@ -144,7 +148,7 @@ export default function Header() {
             <form onSubmit={handleSearch} className="flex">
               <input
                 type="text"
-                className="border-2 rounded-full pl-4 pr-12 py-1 w-64"
+                className="border-2 rounded-full pl-4 pr-12 py-1 w-80"
                 placeholder="Search for product..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)} // Cập nhật giá trị từ khóa tìm kiếm
@@ -166,34 +170,6 @@ export default function Header() {
         </div>
 
         {/* Phần chứa các icon */}
-        <div className="flex items-center gap-4">
-          <NavLink to="/refresh" className="text-black no-underline text-2xl hover:text-gray-300">
-            <i className="fas fa-sync-alt" />
-          </NavLink>
-
-          {/* Icon người dùng để vào trang cá nhân */}
-          {user ? (
-            <NavLink to="/profile" className="text-black no-underline text-2xl hover:text-gray-300">
-              <i className="fas fa-user" />
-            </NavLink>
-          ) : (
-            <NavLink to="/login" className="text-black no-underline text-2xl hover:text-gray-300">
-              <i className="fas fa-user" />
-            </NavLink>
-          )}
-
-          <NavLink to="/wishlist" className="text-black no-underline text-2xl hover:text-gray-300">
-            <i className="fas fa-heart" />
-          </NavLink>
-
-          {/* Icon giỏ hàng */}
-          <NavLink to="/cart" className="relative">
-            <i className="fas fa-shopping-cart text-black text-2xl hover:text-gray-300" />
-            <span className="absolute -top-1 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
-              {totalItemsInCart}
-            </span>
-          </NavLink>
-        </div>
       </div>
 
       {/* Phần điều hướng chính */}
@@ -233,14 +209,38 @@ export default function Header() {
               Blog
             </NavLink>
           </div>
+          <div className="flex items-center gap-4 mr-10">
+            {user ? (
+              <NavLink to="/profile" className="text-white no-underline text-2xl hover:text-gray-300">
+                <i className="fas fa-user" />
+              </NavLink>
+            ) : (
+              <NavLink to="/login" className="text-black no-underline text-2xl hover:text-gray-300">
+                <i className="fas fa-user" />
+              </NavLink>
+            )}
 
-          <NavLink
+            <NavLink to="/wishlist" className="relative">
+              <i className="fas fa-heart text-white text-2xl hover:text-gray-300" />
+              <span className="absolute -top-1 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {totalItemsInWishlist}
+              </span>
+            </NavLink>
+
+            <NavLink to="/cart" className="relative">
+              <i className="fas fa-shopping-cart text-white text-2xl hover:text-gray-300" />
+              <span className="absolute -top-1 -right-2 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {totalItemsInCart}
+              </span>
+            </NavLink>
+          </div>
+          {/* <NavLink
             to="/weekly-discount"
             className="inline-flex items-center text-center rounded gap-2 group text-lg px-5 text-white hover:bg-blue-600"
           >
             <span className="transition-opacity duration-300 group-hover:opacity-100">Weekly Discount</span>
             <span className="qodef-m-icon flex items-center justify-center relative w-3 h-3">
-              {/* Icon SVG có thể tùy chỉnh */}
+             
               <svg
                 className="absolute group-hover:opacity-100 duration-300 transition-all opacity-0"
                 xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +266,7 @@ export default function Header() {
                 ></path>
               </svg>
             </span>
-          </NavLink>
+          </NavLink> */}
         </div>
       </nav>
     </header>

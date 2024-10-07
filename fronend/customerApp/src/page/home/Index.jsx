@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import apiServer from '../../services/apiServer'
-import { AuthContext } from '../../context/AuthContext' // Import AuthContext
+import { AuthContext } from '../../context/AuthContext' 
 
 export default function Index() {
   const { addToCart } = useCart()
@@ -13,14 +13,14 @@ export default function Index() {
 
   const navigate = useNavigate()
 
-  const { user } = useContext(AuthContext) // Lấy user từ AuthContext
+  const { user } = useContext(AuthContext) 
 
   useEffect(() => {
     // Gọi API để lấy sản phẩm
     const fetchData = async () => {
       try {
         const featuredData = await apiServer.getFeaturedProducts()
-        console.log('Featured Products:', featuredData) // Kiểm tra dữ liệu
+        console.log('Featured Products:', featuredData) 
         setFeaturedProducts(featuredData)
 
         const specialData = await apiServer.getSpecialProducts()
@@ -30,7 +30,7 @@ export default function Index() {
         setTrendingProducts(trendingData)
 
         const bannerData = await apiServer.getBannerProducts()
-        console.log('bannerData Products:', bannerData) // Kiểm tra dữ liệu
+        console.log('bannerData Products:', bannerData)
         setBannerProducts(bannerData)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -42,7 +42,7 @@ export default function Index() {
 
   const handleProductClick = id => {
     console.log('ID--------:', id)
-    navigate(`/product/${id}`) // Điều hướng đến trang chi tiết sản phẩm với ID
+    navigate(`/product/${id}`) 
   }
 
   return (
@@ -65,7 +65,7 @@ export default function Index() {
                     <h2 className="text-xl">{special.name}</h2>
                     <p className="text-sm">{special.idProduct}</p>
                     <a
-                      href="!"
+                      href="/tcsp"
                       className="inline-flex items-center py-2 px-4 bg-blue-200 text-black rounded gap-2 mt-4 group"
                     >
                       <span className="qodef-m-text">Shop Now</span>
@@ -91,7 +91,7 @@ export default function Index() {
                       </span>
                     </a>
                   </div>
-                  <img src={special.image} className="w-48 h-52 ml-auto mr-10" alt={special.name} />
+                  <img src={special.imageUrl} className="w-52 h-52 " alt={special.name} />
                 </div>
               </div>
             </div>
@@ -115,12 +115,10 @@ export default function Index() {
                   handleProductClick(featured._id)
                 }}
               >
-                {' '}
-                {/* Điều hướng đến chi tiết sản phẩm */}
                 <div className="overflow-hidden transform transition-transform duration-300 group-hover:-translate-y-4">
                   <img
-                    src={featured.image}
-                    className="w-full mt-5 pt-10 h-auto transform transition-transform duration-300 group-hover:-translate-y-4"
+                    src={featured.imageUrl}
+                    className="w-full mt-5 pt-10 h-80 transform transition-transform duration-300 group-hover:-translate-y-4"
                     alt={featured.name}
                   />
                   <div className="card-body flex flex-col pl-4 text-sm mt-10 py-2 transform transition-transform duration-300 group-hover:-translate-y-4">
@@ -156,11 +154,7 @@ export default function Index() {
                   <p className="text-sm">{panel.price}”</p>
                   <p className="text-green-600">{panel.content}</p>
                 </div>
-                <img
-                  src="img/z5502132260652_b8cbbdb721bf9a03a9f02228f75bd145.jpg"
-                  className="w-48 h-auto ml-auto"
-                  alt="E-77 Camera"
-                />
+                <img src={panel.imageUrl} className="w-48 h-60 ml-auto" alt={panel.name} />
               </div>
             </div>
           </div>
@@ -175,7 +169,7 @@ export default function Index() {
           <div className="w-full md:w-1/3 px-4 mb-4" key={trending._id}>
             <div className="card shadow-lg relative group">
               <div className="card-body flex items-center p-4">
-                <img src={trending.image} className="w-48 h-auto ml-auto" alt={trending.name} />
+                <img src={trending.imageUrl} className="w-52 h-52 ml-auto" alt={trending.name} />
                 <div className="flex-grow pl-5">
                   <h2 className="text-lg pt-5">{trending.name}</h2>
                   <p className="text-lg">${trending.price}</p>

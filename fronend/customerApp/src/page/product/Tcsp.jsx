@@ -1,208 +1,3 @@
-// // import React, { useState, useEffect } from 'react'
-// // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// // import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons'
-// // import { Slider, Typography, Box, Collapse } from '@mui/material'
-
-// // export default function Tcsp() {
-// //   const [products, setProducts] = useState([])
-// //   const [selectedCategories, setSelectedCategories] = useState([])
-// //   const [selectedBrands, setSelectedBrands] = useState([])
-// //   const [selectedVehicles, setSelectedVehicles] = useState([])
-// //   const [activeFilter, setActiveFilter] = useState('')
-// //   const [priceRange, setPriceRange] = useState([0, 7500])
-
-// //   // Lấy danh sách sản phẩm từ API
-// //   useEffect(() => {
-// //     const fetchProducts = async () => {
-// //       try {
-// //         const response = await fetch('http://localhost:5000/api/customer/products') // Đổi thành endpoint API thực tế của bạn
-// //         const data = await response.json()
-// //         setProducts(data)
-// //       } catch (error) {
-// //         console.error('Error fetching products:', error)
-// //       }
-// //     }
-
-// //     fetchProducts()
-// //   }, [])
-
-// //   const toggleFilter = filter => {
-// //     setActiveFilter(activeFilter === filter ? '' : filter)
-// //   }
-
-// //   const handleCategoryChange = category => {
-// //     setSelectedCategories(prev => (prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]))
-// //   }
-
-// //   const handleBrandChange = brand => {
-// //     setSelectedBrands(prev => (prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]))
-// //   }
-
-// //   const handleVehicleChange = vehicle => {
-// //     setSelectedVehicles(prev => (prev.includes(vehicle) ? prev.filter(v => v !== vehicle) : [...prev, vehicle]))
-// //   }
-// //   // const filteredProducts = products
-// //   // Lọc sản phẩm dựa trên danh mục, thương hiệu và phương tiện đã chọn
-// //   const filteredProducts = products.filter(
-// //     product =>
-// //       (selectedCategories.length === 0 || selectedCategories.includes(product.categoryId.name)) &&
-// //       (selectedBrands.length === 0 || selectedBrands.includes(product.brandId.name)) &&
-// //       (selectedVehicles.length === 0 || selectedVehicles.includes(product.vehicleId.name)) &&
-// //       product.price >= priceRange[0] &&
-// //       product.price <= priceRange[1],
-// //   )
-
-// //   // Hàm đếm số lượng sản phẩm theo category, brand, và vehicle
-// //   const countProductsByCategory = category => products.filter(product => product.categoryId.name === category).length
-// //   const countProductsByBrand = brand => products.filter(product => product.brandId.name === brand).length
-// //   const countProductsByVehicle = vehicle => products.filter(product => product.vehicleId.name === vehicle).length
-
-// //   const handlePriceChange = (event, newValue) => {
-// //     setPriceRange(newValue)
-// //   }
-
-// //   return (
-// //     <div className="container mx-auto mt-20 p-10">
-// //       <div className="flex flex-wrap">
-// //         <div className="w-full md:w-1/4 pr-4 border-r border-gray-300">
-// //           <ul className="space-y-2">
-// //             {/* Bộ lọc theo danh mục */}
-// //             <li>
-// //               <button
-// //                 onClick={() => toggleFilter('category')}
-// //                 className="font-bold text-left flex justify-between items-center"
-// //               >
-// //                 <FontAwesomeIcon icon={activeFilter === 'category' ? faChevronDown : faChevronRight} className="mr-2" />
-// //                 Danh mục
-// //               </button>
-// //               <Collapse in={activeFilter === 'category'}>
-// //                 <ul className="pl-4 mt-2 space-y-1">
-// //                   {products.map(product => (
-// //                     <li key={product.categoryId._id}>
-// //                       <input
-// //                         type="checkbox"
-// //                         id={product.categoryId.name}
-// //                         checked={selectedCategories.includes(product.categoryId.name)}
-// //                         onChange={() => handleCategoryChange(product.categoryId.name)}
-// //                       />
-// //                       <label htmlFor={product.categoryId.name}>
-// //                         {product.categoryId.name} ({countProductsByCategory(product.categoryId.name)})
-// //                       </label>
-// //                     </li>
-// //                   ))}
-// //                 </ul>
-// //               </Collapse>
-// //             </li>
-// //             {/* Bộ lọc theo thương hiệu */}
-// //             <li>
-// //               <button
-// //                 onClick={() => toggleFilter('brand')}
-// //                 className="font-bold text-left flex justify-between items-center"
-// //               >
-// //                 <FontAwesomeIcon icon={activeFilter === 'brand' ? faChevronDown : faChevronRight} className="mr-2" />
-// //                 Thương hiệu
-// //               </button>
-// //               <Collapse in={activeFilter === 'brand'}>
-// //                 <ul className="pl-4 mt-2 space-y-1">
-// //                   {products.map(product => (
-// //                     <li key={product.brandId._id}>
-// //                       <input
-// //                         type="checkbox"
-// //                         id={product.brandId.name}
-// //                         checked={selectedBrands.includes(product.brandId.name)}
-// //                         onChange={() => handleBrandChange(product.brandId.name)}
-// //                       />
-// //                       <label htmlFor={product.brandId.name}>
-// //                         {product.brandId.name} ({countProductsByBrand(product.brandId.name)})
-// //                       </label>
-// //                     </li>
-// //                   ))}
-// //                 </ul>
-// //               </Collapse>
-// //             </li>
-// //             {/* Bộ lọc theo phương tiện */}
-// //             <li>
-// //               <button
-// //                 onClick={() => toggleFilter('vehicle')}
-// //                 className="font-bold text-left flex justify-between items-center"
-// //               >
-// //                 <FontAwesomeIcon icon={activeFilter === 'vehicle' ? faChevronDown : faChevronRight} className="mr-2" />
-// //                 Phương tiện
-// //               </button>
-// //               <Collapse in={activeFilter === 'vehicle'}>
-// //                 <ul className="pl-4 mt-2 space-y-1">
-// //                   {products.map(product => (
-// //                     <li key={product.vehicleId._id}>
-// //                       <input
-// //                         type="checkbox"
-// //                         id={product.vehicleId.name}
-// //                         checked={selectedVehicles.includes(product.vehicleId.name)}
-// //                         onChange={() => handleVehicleChange(product.vehicleId.name)}
-// //                       />
-// //                       <label htmlFor={product.vehicleId.name}>
-// //                         {product.vehicleId.name} ({countProductsByVehicle(product.vehicleId.name)})
-// //                       </label>
-// //                     </li>
-// //                   ))}
-// //                 </ul>
-// //               </Collapse>
-// //             </li>
-// //             {/* Bộ lọc theo giá */}
-// //             <li>
-// //               <button
-// //                 onClick={() => toggleFilter('price')}
-// //                 className="font-bold text-left flex justify-between items-center"
-// //               >
-// //                 <FontAwesomeIcon icon={activeFilter === 'price' ? faChevronDown : faChevronRight} className="mr-2" />
-// //                 Lọc theo giá
-// //               </button>
-// //               <Collapse in={activeFilter === 'price'}>
-// //                 <Box pl={2} mt={2} position="relative">
-// //                   <Typography gutterBottom>Khoảng giá</Typography>
-// //                   <Slider
-// //                     value={priceRange}
-// //                     onChange={handlePriceChange}
-// //                     min={0}
-// //                     max={7500}
-// //                     valueLabelDisplay="auto"
-// //                     aria-labelledby="range-slider"
-// //                   />
-// //                   <Typography className="text-sm text-center mt-2">
-// //                     Giá: ${priceRange[0]} - ${priceRange[1]}
-// //                   </Typography>
-// //                 </Box>
-// //               </Collapse>
-// //             </li>
-// //           </ul>
-// //         </div>
-
-// //         <div className="w-full md:w-3/4 ">
-// //           <h2 className="text-2xl font-bold ml-4">Sản phẩm</h2>
-// //           <div className="flex flex-wrap">
-// //             {filteredProducts.map(product => (
-// //               <div key={product._id} className="w-full sm:w-1/2 lg:w-1/4 p-4">
-// //                 <div className="border border-gray-200 rounded overflow-hidden">
-// //                   <img
-// //                     src={product.imageUrl || '/default-image.jpg'}
-// //                     className="w-full h-48 object-cover"
-// //                     alt={product.name}
-// //                   />
-// //                   <div className="p-4">
-// //                     <h5 className="text-lg font-semibold">{product.name}</h5>
-// //                     <p className="text-sm">${product.price}</p>
-// //                     <a href="!" className="inline-block mt-2 bg-blue-500 text-white py-1 px-3 rounded">
-// //                       Xem chi tiết
-// //                     </a>
-// //                   </div>
-// //                 </div>
-// //               </div>
-// //             ))}
-// //           </div>
-// //         </div>
-// //       </div>
-// //     </div>
-// //   )
-// // }
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons'
@@ -238,9 +33,7 @@ export default function Tcsp() {
   const searchPriceMin = query.get('priceMin') ? Number(query.get('priceMin')) : 0
   const searchPriceMax = query.get('priceMax') ? Number(query.get('priceMax')) : 7500
 
-  // Cập nhật state từ URL khi component mount hoặc URL thay đổi
   useEffect(() => {
-    // Kiểm tra trước khi cập nhật state để tránh vô hạn loop
     if (
       JSON.stringify(selectedCategories) !== JSON.stringify(searchCategories) ||
       JSON.stringify(selectedBrands) !== JSON.stringify(searchBrands) ||
@@ -253,10 +46,8 @@ export default function Tcsp() {
       setSelectedVehicles(searchVehicles)
       setPriceRange([searchPriceMin, searchPriceMax])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchCategories, searchBrands, searchVehicles, searchPriceMin, searchPriceMax])
 
-  // Hàm để lấy danh sách các danh mục, thương hiệu, phương tiện để hiển thị trong các bộ lọc
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -283,7 +74,6 @@ export default function Tcsp() {
     fetchFilters()
   }, [])
 
-  // Hàm để fetch sản phẩm dựa trên các tham số tìm kiếm
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true)
@@ -312,7 +102,6 @@ export default function Tcsp() {
     }
 
     fetchProducts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchName, selectedCategories, selectedBrands, selectedVehicles, priceRange])
 
   const toggleFilter = filter => {
@@ -357,7 +146,6 @@ export default function Tcsp() {
     updateURL({ priceMin: newValue[0], priceMax: newValue[1] })
   }
 
-  // Hàm để cập nhật URL với các tham số tìm kiếm mới
   const updateURL = updatedParams => {
     const params = new URLSearchParams(location.search)
 
@@ -377,19 +165,17 @@ export default function Tcsp() {
       }
     }
 
-    navigate(`/Tcsp?${params.toString()}`, { replace: true }) // Sử dụng replace để tránh tạo lịch sử điều hướng mới
+    navigate(`/Tcsp?${params.toString()}`, { replace: true })
   }
 
-  // Hàm để reset tất cả bộ lọc và quay lại trang Tcsp không có tham số
   const handleResetFilters = () => {
     setSelectedCategories([])
     setSelectedBrands([])
     setSelectedVehicles([])
     setPriceRange([0, 7500])
-    navigate('/Tcsp', { replace: true }) // Điều hướng tới Tcsp mà không có query params
+    navigate('/Tcsp', { replace: true })
   }
 
-  // Hàm đếm số lượng sản phẩm theo category, brand, và vehicle
   const countProductsByCategory = categoryId => {
     return products.filter(product => product.categoryId._id === categoryId).length
   }
@@ -424,7 +210,6 @@ export default function Tcsp() {
               </li>
             )}
 
-            {/* Bộ lọc theo danh mục */}
             <li>
               <button
                 onClick={() => toggleFilter('category')}
@@ -452,7 +237,6 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
-            {/* Bộ lọc theo thương hiệu */}
             <li>
               <button
                 onClick={() => toggleFilter('brand')}
@@ -480,7 +264,6 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
-            {/* Bộ lọc theo phương tiện */}
             <li>
               <button
                 onClick={() => toggleFilter('vehicle')}
@@ -508,7 +291,6 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
-            {/* Bộ lọc theo giá */}
             <li>
               <button
                 onClick={() => toggleFilter('price')}
@@ -537,11 +319,9 @@ export default function Tcsp() {
           </ul>
         </div>
 
-        {/* Danh sách sản phẩm bên phải */}
         <div className="w-full md:w-3/4">
-          <h2 className="text-2xl font-bold ml-4 mb-4">Sản phẩm</h2>
+          <h2 className="text-2xl font-bold ml-4 mb-4">Products</h2>
 
-          {/* Hiển thị trạng thái tải hoặc lỗi */}
           {loading && <p className="w-full text-center">Đang tải sản phẩm...</p>}
           {error && <p className="w-full text-center text-red-500">{error}</p>}
 
@@ -550,19 +330,21 @@ export default function Tcsp() {
               !error &&
               (products.length > 0 ? (
                 products.map(product => (
-                  <div key={product._id} className="w-full sm:w-1/2 lg:w-1/4 p-4">
-                    <div className="border border-gray-200 rounded overflow-hidden">
+                  <div key={product._id} className="w-full sm:w-1/2 lg:w-1/4 p-4 mb-10">
+                    <div className="border border-gray-200 rounded h-full flex flex-col">
                       <img
                         src={product.imageUrl || '/default-image.jpg'}
-                        className="w-full h-48 object-cover"
+                        className="w-52 h-52 mx-auto"
                         alt={product.name}
                       />
-                      <div className="p-4">
-                        <h5 className="text-lg font-semibold">{product.name}</h5>
-                        <p className="text-sm">${product.price}</p>
+                      <div className="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                          <h5 className="text-lg font-semibold">{product.name}</h5>
+                          <p className="text-sm">{product.price} VND</p>
+                        </div>
                         <a
                           href={`/product/${product._id}`}
-                          className="inline-block mt-2 bg-blue-500 text-white py-1 px-3 rounded"
+                          className="inline-block mt-2 bg-blue-500 text-white py-1 px-3 rounded self-start"
                         >
                           Xem chi tiết
                         </a>

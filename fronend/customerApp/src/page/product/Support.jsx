@@ -1,4 +1,4 @@
-// src/components/Support.js
+
 
 import React, { useState } from 'react'
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaQuestionCircle } from 'react-icons/fa'
@@ -15,17 +15,17 @@ const Support = () => {
 
   const [loading, setLoading] = useState(false)
 
-  // Xử lý thay đổi giá trị trong form
+
   const handleChange = e => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
   }
 
-  // Xử lý gửi form
+
   const handleSubmit = async e => {
     e.preventDefault()
 
-    // Kiểm tra xem tất cả các trường đã được điền đầy đủ chưa
+    
     const { name, email, subject, message } = formData
     if (!name || !email || !subject || !message) {
       toast.error('Vui lòng điền đầy đủ các trường.')
@@ -35,11 +35,11 @@ const Support = () => {
     setLoading(true)
 
     try {
-      // Giả lập gửi dữ liệu tới backend
-      // Thay thế đoạn này bằng yêu cầu thực tế khi backend đã sẵn sàng
+    
+     
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Reset form sau khi gửi thành công
+
       setFormData({
         name: '',
         email: '',
@@ -60,7 +60,7 @@ const Support = () => {
       <h2 className="text-3xl font-bold text-center mb-8">Support</h2>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Thông Tin Liên Hệ */}
+
         <div>
           <h3 className="text-2xl font-semibold mb-4">Liên Hệ Với Chúng Tôi</h3>
           <div className="flex items-center mb-4">
@@ -86,7 +86,6 @@ const Support = () => {
           </div>
         </div>
 
-        {/* Form Liên Hệ */}
         <div>
           <h3 className="text-2xl font-semibold mb-4">Gửi Tin Nhắn</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -161,11 +160,11 @@ const Support = () => {
         </div>
       </div>
 
-      {/* FAQ Section */}
+
       <div className="mt-12">
         <h3 className="text-2xl font-semibold mb-4">Câu Hỏi Thường Gặp</h3>
         <div className="space-y-4">
-          {/* Câu hỏi 1 */}
+     
           <details className="group">
             <summary className="flex justify-between items-center cursor-pointer bg-gray-100 p-4 rounded-md">
               <span>Chính sách vận chuyển của bạn là gì?</span>
@@ -179,7 +178,7 @@ const Support = () => {
             </div>
           </details>
 
-          {/* Câu hỏi 2 */}
+   
           <details className="group">
             <summary className="flex justify-between items-center cursor-pointer bg-gray-100 p-4 rounded-md">
               <span>Quy trình đổi trả sản phẩm như thế nào?</span>
@@ -193,7 +192,7 @@ const Support = () => {
             </div>
           </details>
 
-          {/* Câu hỏi 3 */}
+
           <details className="group">
             <summary className="flex justify-between items-center cursor-pointer bg-gray-100 p-4 rounded-md">
               <span>Liệu tôi có thể theo dõi đơn hàng của mình không?</span>
@@ -210,11 +209,10 @@ const Support = () => {
             </div>
           </details>
 
-          {/* Thêm các câu hỏi khác nếu cần */}
         </div>
       </div>
 
-      {/* Toast Container để hiển thị thông báo */}
+ 
       <ToastContainer />
     </div>
   )

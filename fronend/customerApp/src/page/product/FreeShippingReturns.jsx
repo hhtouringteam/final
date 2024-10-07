@@ -1,4 +1,4 @@
-// src/components/FreeShippingReturns.js
+
 
 import React from 'react'
 import { FaShippingFast, FaExchangeAlt, FaBoxOpen } from 'react-icons/fa'
@@ -18,7 +18,7 @@ const FreeShippingReturns = () => {
           </p>
         </div>
 
-        {/* Easy Returns */}
+    
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center">
           <FaExchangeAlt className="text-4xl text-green-500 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Easy Returns</h3>
@@ -27,7 +27,6 @@ const FreeShippingReturns = () => {
           </p>
         </div>
 
-        {/* Secure Packaging */}
         <div className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center text-center">
           <FaBoxOpen className="text-4xl text-yellow-500 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Secure Packaging</h3>
@@ -37,7 +36,6 @@ const FreeShippingReturns = () => {
         </div>
       </div>
 
-      {/* Additional Information */}
       <div className="mt-12 text-center">
         <h3 className="text-2xl font-semibold mb-4">Our Commitment</h3>
         <p className="text-gray-700">

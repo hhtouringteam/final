@@ -15,20 +15,19 @@ const UserProfile = () => {
   const [filterStatus, setFilterStatus] = useState('all') // State cho lọc theo trạng thái
   const navigate = useNavigate()
 
-  // Base URL của API
+
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
 
-  // Kiểm tra nếu người dùng chưa đăng nhập, điều hướng về trang đăng nhập
   useEffect(() => {
     if (!user) {
       navigate('/login')
     }
 
-    // Fetch lịch sử đơn hàng
+  
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/orders/${user.userId}`)
-        setOrders(response.data) // Lưu danh sách đơn hàng vào state
+        setOrders(response.data) 
       } catch (error) {
         console.error('Không tìm thấy đơn hàng', error.response?.data?.message || error.message)
         toast.error('Không tìm thấy đơn hàng hoặc đã xảy ra lỗi.')
@@ -37,27 +36,25 @@ const UserProfile = () => {
     }
 
     if (user && user.userId) {
-      fetchOrders() // Chỉ gọi API nếu userId có tồn tại
+      fetchOrders()
     }
   }, [user, navigate, API_BASE_URL])
 
-  // Hàm xử lý mở chi tiết đơn hàng
   const handleExpandOrder = orderId => {
     if (expandedOrder === orderId) {
-      setExpandedOrder(null) // Đóng chi tiết đơn hàng nếu đang mở
+      setExpandedOrder(null) 
     } else {
-      setExpandedOrder(orderId) // Mở chi tiết đơn hàng
+      setExpandedOrder(orderId) 
     }
   }
 
-  // Hàm đánh dấu đơn hàng đã nhận hàng
+ 
   const handleMarkAsReceived = async orderId => {
     try {
       const response = await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status: 'Received' })
 
       const updatedOrder = response.data
 
-      // Cập nhật trạng thái trong UI
       setOrders(prevOrders =>
         prevOrders.map(order => (order._id === orderId ? { ...order, status: updatedOrder.status } : order)),
       )
@@ -68,13 +65,13 @@ const UserProfile = () => {
     }
   }
 
-  // Hàm xử lý khi nhấn "Logout"
+
   const handleLogout = () => {
-    logout() // Gọi hàm logout từ AuthContext
+    logout() 
     navigate('/login')
   }
 
-  // Hàm lọc và tìm kiếm đơn hàng
+
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus
@@ -112,7 +109,7 @@ const UserProfile = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Lịch sử đơn hàng</h2>
 
-            {/* Tìm kiếm và lọc đơn hàng */}
+ 
             <div className="flex flex-col md:flex-row justify-between mb-4">
               <input
                 type="text"
@@ -155,7 +152,7 @@ const UserProfile = () => {
                         <tr className="text-center">
                           <td className="py-2 px-4 border-b">#{order._id}</td>
                           <td className="py-2 px-4 border-b">{new Date(order.createdAt).toLocaleString()}</td>
-                          <td className="py-2 px-4 border-b capitalize">{order.status}</td>
+                          <td className="py-2 px-4 border-b capitalize">{order.paymentStatus}</td>
                           <td className="py-2 px-4 border-b">{order.paymentMethod || 'MoMo'}</td>
                           <td className="py-2 px-4 border-b">{order.totalPrice.toLocaleString()} VND</td>
                           <td className="py-2 px-4 border-b">

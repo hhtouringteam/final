@@ -86,7 +86,7 @@ export default function Footer() {
             <p>© 2022 QODE INTERACTIVE, ALL RIGHTS RESERVED</p>
           </div>
           <div>
-            <img src="img/thanhtoan.jpg" alt="Payment Methods" className="object-cover" />
+            <img src="" alt="Payment Methods" className="object-cover" />
           </div>
         </div>
       </div>

@@ -5,13 +5,13 @@ import 'react-toastify/dist/ReactToastify.css'
 import { AuthContext } from '../../context/AuthContext' // Import UserContext
 import { GoogleLogin, useGoogleLogin } from '@react-oauth/google'
 export default function Login() {
-  // State cho form đăng nhập
+
   const [loginData, setLoginData] = useState({
     username: '',
     password: '',
   })
 
-  // State cho form đăng ký
+ 
   const [registerData, setRegisterData] = useState({
     firstName: '',
     lastName: '',
@@ -23,7 +23,7 @@ export default function Login() {
   const navigate = useNavigate()
   const { login } = useContext(AuthContext)
 
-  // Hàm chung để xử lý thay đổi input cho form
+
   const handleChange = (setState, e) => {
     setState(prevState => ({
       ...prevState,
@@ -31,7 +31,7 @@ export default function Login() {
     }))
   }
 
-  // Hàm chung để gửi yêu cầu fetch API
+
   const handleFetch = async (url, method, body) => {
     const response = await fetch(url, {
       method,
@@ -46,7 +46,7 @@ export default function Login() {
     return data
   }
 
-  // Hàm chung để xử lý đăng nhập
+ 
   const processLogin = (data, navigate) => {
     localStorage.setItem('token', data.token)
     login(data.token)
@@ -60,7 +60,7 @@ export default function Login() {
     }
   }
 
-  // Xử lý submit form đăng nhập
+ 
   const handleLoginSubmit = async e => {
     e.preventDefault()
     try {
@@ -74,7 +74,7 @@ export default function Login() {
     }
   }
 
-  // Xử lý submit form đăng ký
+
   const handleRegisterSubmit = async e => {
     e.preventDefault()
 
@@ -92,7 +92,7 @@ export default function Login() {
         password: registerData.password,
       })
       toast.success('Đăng ký thành công!')
-      // Tự động đăng nhập sau khi đăng ký
+
       const data = await handleFetch('http://localhost:5000/api/users/auth/login', 'POST', {
         username,
         password: registerData.password,
@@ -103,7 +103,7 @@ export default function Login() {
     }
   }
 
-  // Các hàm onChange cho input
+
   const handleLoginChange = e => handleChange(setLoginData, e)
   const handleRegisterChange = e => handleChange(setRegisterData, e)
 
@@ -113,21 +113,21 @@ export default function Login() {
 
   const handleGoogleLoginSuccess = async response => {
     try {
-      // Gửi token idToken đến backend để xác thực
+ 
       const res = await fetch('http://localhost:5000/api/users/auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token: response.credential, // Gửi token từ Google đến backend
+          token: response.credential, 
         }),
       })
 
       const data = await res.json()
-      console.log('Response from backend:', data) // Kiểm tra dữ liệu nhận từ backend
+      console.log('Response from backend:', data) 
       if (res.ok) {
-        login(data.token) // Lưu token từ backend
+        login(data.token)
         toast.success('Đăng nhập bằng Google thành công!')
         navigate('/')
       } else {
@@ -143,9 +143,11 @@ export default function Login() {
     console.error('Google login error:', error)
     toast.error('Đăng nhập bằng Google thất bại!')
   }
+
   // const googleLogin = useGoogleLogin({
   //   onSuccess: handleGoogleLoginSuccess,
   //   onError: handleGoogleLoginFailure,
+  //   flow: 'auth-code',
   // })
 
   return (
@@ -160,7 +162,9 @@ export default function Login() {
             Google+
           </button> */}
 
-          <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginFailure} />
+          <div className="">
+            <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={handleGoogleLoginFailure} />
+          </div>
         </div>
         <hr className="w-118 border-t-2 border-gray-700 mb-6" />
       </div>

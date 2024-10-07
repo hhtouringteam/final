@@ -1,20 +1,17 @@
+// src/components/ProductDetail/ProductDetail.js
 import React, { useState, useEffect } from 'react'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import { useCart } from '../../context/CartContext'
-import { useWishlist } from '../../context/WishlistContext' // Import useWishlist
-import { useParams } from 'react-router-dom'
-import { NavLink } from 'react-router-dom'
+import { useWishlist } from '../../context/WishlistContext'
+import { useParams, NavLink } from 'react-router-dom'
 import apiServer from '../../services/apiServer'
 
 export default function ProductDetail() {
   const { id } = useParams()
-
-  const [products, setProduct] = useState(null)
-
-  const { addToWishlist } = useWishlist()
+  const [product, setProduct] = useState(null) 
+  const { addToWishlist, wishlist } = useWishlist()
   const { addToCart } = useCart()
-
   const [currentIndex, setCurrentIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
@@ -34,11 +31,20 @@ export default function ProductDetail() {
       fetchProduct()
     }
   }, [id])
-  if (!products || products.length === 0) {
-    return <div>Product not found!</div>
+
+  useEffect(() => {
+    if (product && wishlist.find(item => item._id === product._id)) {
+      setIsWishlisted(true)
+    } else {
+      setIsWishlisted(false)
+    }
+  }, [wishlist, product])
+
+  if (!product) {
+    return <div>Loading...</div>
   }
 
-  const images = Array.isArray(products.image) ? products.image : [products.image]
+  const images = Array.isArray(product.imageUrl) ? product.imageUrl : [product.imageUrl]
 
   const goToPreviousImage = () => {
     const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1
@@ -60,9 +66,10 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     const productToAdd = {
-      name: products.displayName,
-      image: images[currentIndex],
-      price: products.price,
+      _id: product._id,
+      name: product.name,
+      imageUrl: images[currentIndex],
+      price: product.price,
       quantity: quantity,
     }
 
@@ -71,11 +78,12 @@ export default function ProductDetail() {
 
   const handleWishlist = () => {
     const productToAdd = {
-      name: products.displayName,
-      image: images[currentIndex],
-      price: products.price,
+      _id: product._id,
+      name: product.name,
+      imageUrl: images[currentIndex],
+      price: product.price,
+      inStock: product.inStock,
     }
-    console.log(products.displayName)
 
     addToWishlist(productToAdd)
     setIsWishlisted(true)
@@ -83,13 +91,8 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto mt-4 p-10 flex px-20">
-      {/* Phần bên trái cho hình ảnh sản phẩm */}
       <div className="w-1/2 flex flex-col items-center">
-        <img
-          src={images[currentIndex]}
-          alt="Main product"
-          className="w-full h-auto rounded-lg border border-gray-300"
-        />
+        <img src={images[currentIndex]} alt="Main product" className="w-96 h-96 rounded-lg border border-gray-300" />
 
         <div className="flex items-center mt-4">
           <button
@@ -122,14 +125,15 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Phần bên phải cho thông tin sản phẩm */}
       <div className="w-1/2 pl-10">
-        <h2 className="text-3xl font-semibold">{products.displayName}</h2>
+        <h2 className="text-3xl font-semibold">{product.name}</h2>
 
-        <p className="text-xl text-gray-700 mt-2">${products.price}</p>
-        <p className="text-gray-600 mt-4">{products.description}</p>
+        <p className="text-xl text-gray-700 mt-2">
+          {' '}
+          {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+        </p>
+        <p className="text-gray-600 mt-4">{product.description}</p>
 
-        {/* Phần số lượng sản phẩm */}
         <div className="mt-6">
           <div className="relative flex items-center">
             <input
@@ -138,7 +142,7 @@ export default function ProductDetail() {
               value={quantity}
               readOnly
             />
-            <div className="absolute left-14  top-0 flex flex-col justify-center h-full">
+            <div className="absolute left-14 top-0 flex flex-col justify-center h-full">
               <button
                 className="w-4 h-4 items-center justify-center cursor-pointer transition-colors duration-300 ease-out"
                 onClick={increaseQuantity}
@@ -180,56 +184,21 @@ export default function ProductDetail() {
               Browse wishlist
             </NavLink>
           ) : (
-            <button className="text-dark no-underline" onClick={handleWishlist}>
+            <button className="text-dark no-underline flex items-center" onClick={handleWishlist}>
               <i className="fas fa-heart" />
               <span className="ml-3">Add to wishlist</span>
             </button>
           )}
         </div>
-        <p className="text-gray-600 mt-4">SKU: 10</p>
-        <p className="text-gray-600">Category: Gadgets</p>
-        <p className="text-gray-600">Tags: USB, Wireless</p>
+        <p className="text-gray-600 mt-4">SKU: {product.stock || 'N/A'}</p>
+        <p className="text-gray-600">Category: {product.categoryId.name || 'N/A'}</p>
+        <p className="text-gray-600">Tags: {product.vehicleId.name || 'N/A'}</p>
 
-        <div className="mt-6 p-4 bg-blue-100 border border-blue-500 text-blue-800 rounded">
-          <i className="fas fa-info-circle"></i> Need help? Call Us +001 234 56 789
-          <div>Monday - Friday 09:00 - 21:00</div>
+        <div className="mt-6 p-4 bg-blue-100 border border-blue-500 w-80 text-blue-800">
+          <i className="fas fa-info-circle"></i> Need help? Call VN +84 337 325 729
+          <div className="text-center">Monday - Friday 09:00 - 21:00</div>
         </div>
       </div>
     </div>
   )
 }
-
-// import React, { useEffect, useState } from 'react'
-// import { useParams } from 'react-router-dom' // Import useParams để lấy slug
-
-// export default function Text() {
-//   const { id } = useParams()
-//   const [product, setProduct] = useState(null)
-
-//   useEffect(() => {
-//     const fetchProduct = async () => {
-//       try {
-//         const response = await fetch(`http://localhost:5000/api/customer/products/${id}`)
-//         const data = await response.json()
-//         setProduct(data)
-//       } catch (error) {
-//         console.error('Error fetching product:', error)
-//       }
-//     }
-
-//     fetchProduct()
-//   }, [id])
-
-//   if (!product) {
-//     return <div>Product not found!</div>
-//   }
-
-//   return (
-//     <div>
-//       <h1>{product.name}</h1>
-//       <p>{product.description}</p>
-//       <p>{product.price}</p>
-//       <img src={product.image} alt={product.name} />
-//     </div>
-//   )
-// }

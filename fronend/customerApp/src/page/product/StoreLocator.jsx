@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Fix icon issue với Leaflet trong React
+
 delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
@@ -19,21 +19,21 @@ const storeLocations = [
     id: 1,
     name: 'Cửa Hàng 1',
     address: '123 Đường A, Thành phố X',
-    position: [21.028511, 105.804817], // Vĩ độ và Kinh độ (Hà Nội)
+    position: [21.028511, 105.804817], 
   },
   {
     id: 2,
     name: 'Cửa Hàng 2',
     address: '456 Đường B, Thành phố Y',
-    position: [10.762622, 106.660172], // TP.HCM
+    position: [10.762622, 106.660172], 
   },
   {
     id: 3,
     name: 'Cửa Hàng 3',
     address: '789 Đường C, Thành phố Z',
-    position: [16.047079, 108.20623], // Đà Nẵng
+    position: [16.047079, 108.20623],
   },
-  // Thêm các địa điểm khác nếu cần
+  
 ]
 
 const StoreLocator = () => {
@@ -42,7 +42,7 @@ const StoreLocator = () => {
       <h2 className="text-3xl font-bold text-center mb-6">Store Locator</h2>
       <div className="w-full h-96 md:h-[600px]">
         <MapContainer
-          center={[21.028511, 105.804817]} // Tọa độ trung tâm (Hà Nội)
+          center={[21.028511, 105.804817]} 
           zoom={5}
           scrollWheelZoom={false}
           className="w-full h-full rounded-lg shadow-lg"
