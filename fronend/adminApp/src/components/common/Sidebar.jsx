@@ -5,12 +5,12 @@ import { Home, ColorLens, TextFields, Widgets, Notifications, ListAlt } from '@m
 
 function Sidebar({ isSidebarVisible }) {
   const navItems = [
-    { name: 'Dashboard', icon: <Home />, path: 'dashboard' },
+    { name: 'Dashboard', icon: <Home />, path: '/dashboard' },
     { name: 'Create New Product', icon: <ColorLens />, path: '/create' },
     { name: 'Related Information', icon: <TextFields />, path: '/createrelatedinformation' },
     { name: 'ProductsList', icon: <Widgets />, path: '/list' },
     { name: 'Notifications', icon: <Notifications />, path: '/notifications' },
-    { name: 'Widgets', icon: <ListAlt />, path: '/widgets' },
+    { name: 'a', icon: <ListAlt />, path: '/a' },
   ]
 
   return (

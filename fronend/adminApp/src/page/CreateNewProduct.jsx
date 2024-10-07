@@ -4,10 +4,11 @@ import { toast } from 'react-toastify'
 import { EntitiesContext } from '../context/EntitiesContext'
 
 const CreateNewProduct = () => {
-  const { brands, categories, vehicles, loading } = useContext(EntitiesContext)
+  const { brands = [], categories = [], vehicles = [], loading } = useContext(EntitiesContext)
 
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
+  const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [brandId, setBrandId] = useState('')
   const [vehicleId, setVehicleId] = useState('')
@@ -33,7 +34,7 @@ const CreateNewProduct = () => {
   const handleAddProduct = e => {
     e.preventDefault()
 
-    if (!name || !price || !categoryId || !brandId || !vehicleId) {
+    if (!name || !price || !description || !categoryId || !brandId || !vehicleId) {
       toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!')
       return
     }
@@ -50,6 +51,7 @@ const CreateNewProduct = () => {
     const productData = {
       name,
       price: parseFloat(price),
+      description,
       categoryId,
       brandId,
       vehicleId,
@@ -84,6 +86,7 @@ const CreateNewProduct = () => {
       // Reset form sau khi thêm thành công
       setName('')
       setPrice('')
+      setDescription('')
       setCategoryId('')
       setBrandId('')
       setVehicleId('')
@@ -111,7 +114,9 @@ const CreateNewProduct = () => {
   if (loading) {
     return <p className="text-white">Đang tải dữ liệu...</p>
   }
-
+  const selectedCategory = categoryId ? categories.find(cat => cat?._id === categoryId) : null
+  const selectedBrand = brandId ? brands.find(brand => brand?._id === brandId) : null
+  const selectedVehicle = vehicleId ? vehicles.find(vehicle => vehicle?._id === vehicleId) : null
   return (
     <div className="text-white mb-20">
       <h1 className="text-3xl mb-6">Thêm Sản Phẩm</h1>
@@ -137,6 +142,17 @@ const CreateNewProduct = () => {
             placeholder="Giá sản phẩm"
             value={price}
             onChange={e => setPrice(e.target.value)}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1">Description</label>
+          <input
+            type="text"
+            placeholder="Description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
             required
           />
@@ -326,13 +342,13 @@ const CreateNewProduct = () => {
               <strong>Giá:</strong> {price}
             </p>
             <p>
-              <strong>Danh mục:</strong> {categories.find(cat => cat._id === categoryId)?.name || 'N/A'}
+              <strong>Danh mục:</strong> {selectedCategory?.name || 'N/A'}
             </p>
             <p>
-              <strong>Thương hiệu:</strong> {brands.find(br => br._id === brandId)?.name || 'N/A'}
+              <strong>Thương hiệu:</strong> {selectedBrand?.name || 'N/A'}
             </p>
             <p>
-              <strong>Phương tiện:</strong> {vehicles.find(v => v._id === vehicleId)?.name || 'N/A'}
+              <strong>Phương tiện:</strong> {selectedVehicle?.name || 'N/A'}
             </p>
             <p>
               <strong>Mã sản phẩm:</strong> {itemCode || 'N/A'}

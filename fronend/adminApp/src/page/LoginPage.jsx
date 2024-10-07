@@ -1,69 +1,49 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
-const Login = () => {
-  const [loginData, setLoginData] = useState({ email: '', password: '' })
+function Login() {
+  const [formData, setFormData] = useState({ username: '', password: '' })
+  const { login } = useContext(AuthContext)
   const navigate = useNavigate()
 
-  // Xử lý khi có sự thay đổi trong input
-  const handleInputChange = e => {
-    setLoginData({
-      ...loginData,
-      [e.target.name]: e.target.value,
-    })
+  const handleChange = e => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  // Gửi form đăng nhập
   const handleSubmit = async e => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const res = await fetch('http://localhost:5000/api/users/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify(formData),
       })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        // Lưu token vào localStorage
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        alert('Đăng nhập thành công!')
-        navigate('/admin') // Điều hướng đến trang admin
-      } else {
-        alert(data.message || 'Đăng nhập thất bại')
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Đã xảy ra lỗi')
       }
-    } catch (error) {
-      console.error('Error:', error)
+
+      const data = await res.json()
+      console.log(data)
+      login(data.token)
+      console.log(data.token)
+      alert('Đăng nhập thành công!')
+      navigate('/dashboard')
+    } catch (err) {
+      alert(err.message || 'ádas')
     }
   }
 
   return (
-    <div>
-      <h2>Đăng Nhập</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Nhập email"
-          value={loginData.email}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Nhập mật khẩu"
-          value={loginData.password}
-          onChange={handleInputChange}
-          required
-        />
-        <button type="submit">Đăng nhập</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="username" placeholder="Tên người dùng" onChange={handleChange} required />
+      <input type="password" name="password" placeholder="Mật khẩu" onChange={handleChange} required />
+      <button type="submit">Đăng nhập</button>
+    </form>
   )
 }
 

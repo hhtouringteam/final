@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { toast } from 'react-toastify' // Để hiển thị thông báo
-import 'react-toastify/dist/ReactToastify.css' // Đảm bảo bạn đã cài đặt react-toastify
-const token = localStorage.getItem('token')
+import React, { useState, useEffect, useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 const UserPage = () => {
+  const { user } = useContext(AuthContext) // Lấy thông tin người dùng từ AuthContext
   const [users, setUsers] = useState([])
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -11,32 +14,48 @@ const UserPage = () => {
     password: '',
   })
   const [editUserId, setEditUserId] = useState(null) // Lưu id của người dùng đang được chỉnh sửa
-
+  const [deleteUserId, setDeleteUserId] = useState(null)
+  const [isModalVisible, setIsModalVisible] = useState(false)
   // Lấy danh sách người dùng từ API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/users')
+        const response = await fetch('http://localhost:5000/api/users', {
+          headers: {
+            Authorization: `Bearer ${user.token}`, // Sử dụng token từ AuthContext
+          },
+        })
         const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.message || 'Có lỗi xảy ra khi lấy danh sách người dùng!')
+        }
         setUsers(data)
+        console.log(data)
       } catch (error) {
         console.error('Lỗi khi lấy danh sách người dùng:', error)
+        toast.error('Lỗi khi lấy danh sách người dùng')
       }
     }
-    fetchUsers()
-  }, [])
+
+    if (user) {
+      fetchUsers()
+    }
+  }, [user])
 
   // Xử lý thêm hoặc cập nhật người dùng
   const handleSubmit = async e => {
     e.preventDefault()
     try {
       const method = editUserId ? 'PUT' : 'POST' // PUT cho cập nhật, POST cho thêm mới
-      const url = editUserId ? `http://localhost:5000/api/users/${editUserId}` : 'http://localhost:5000/api/users'
+      const url = editUserId
+        ? `http://localhost:5000/api/users/update/${editUserId}`
+        : 'http://localhost:5000/api/users/auth/register'
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`, // Thêm token xác thực vào headers
         },
         body: JSON.stringify(formData),
       })
@@ -65,6 +84,7 @@ const UserPage = () => {
       }
     } catch (error) {
       console.error('Lỗi khi thêm/cập nhật người dùng:', error)
+      toast.error('Lỗi khi thêm/cập nhật người dùng')
     }
   }
 
@@ -80,24 +100,31 @@ const UserPage = () => {
   }
 
   // Xử lý xóa người dùng
-  const handleDelete = async userId => {
+  const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+      const response = await fetch(`http://localhost:5000/api/users/delete/${deleteUserId}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
       })
       if (response.ok) {
         toast.success('Xóa thành công!')
-        setUsers(users.filter(user => user._id !== userId))
+        setUsers(users.filter(user => user._id !== deleteUserId))
+        setDeleteUserId(null) // Đóng modal sau khi xóa thành công
+        setIsModalVisible(false) // Đóng modal
       } else {
-        toast.error('Có lỗi xảy ra khi xóa người dùng!')
+        const data = await response.json()
+        toast.error(data.message || 'Có lỗi xảy ra khi xóa người dùng!')
       }
     } catch (error) {
       console.error('Lỗi khi xóa người dùng:', error)
+      toast.error('Lỗi khi xóa người dùng!')
     }
   }
 
   return (
-    <div className="p-8  ">
+    <div className="p-8 pb-20">
       <h1 className="text-2xl font-bold mb-4 text-white">Quản lý tài khoản</h1>
 
       {/* Bảng hiển thị người dùng */}
@@ -122,7 +149,13 @@ const UserPage = () => {
                 <button className="bg-blue-500 text-white px-4 py-1 rounded mr-2" onClick={() => handleEdit(user)}>
                   Sửa
                 </button>
-                <button className="bg-red-500 text-white px-4 py-1 rounded" onClick={() => handleDelete(user._id)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-1 rounded"
+                  onClick={() => {
+                    setDeleteUserId(user._id)
+                    setIsModalVisible(true) // Hiển thị modal khi nhấn nút xóa
+                  }}
+                >
                   Xóa
                 </button>
               </td>
@@ -130,6 +163,31 @@ const UserPage = () => {
           ))}
         </tbody>
       </table>
+      {/* Modal xác nhận xóa */}
+      {isModalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          {users
+            .filter(user => user._id === deleteUserId)
+            .map(user => (
+              <div key={user._id} className="bg-white p-6 rounded-lg shadow-lg transition-transform transform scale-95">
+                <h2 className="text-xl font-semibold mb-4">
+                  Bạn có chắc chắn muốn xóa người dùng {user.username} không?
+                </h2>
+                <div className="flex justify-end space-x-4">
+                  <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onClick={handleDelete}>
+                    Xóa
+                  </button>
+                  <button
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                    onClick={() => setIsModalVisible(false)}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* Form thêm/chỉnh sửa người dùng */}
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -138,7 +196,7 @@ const UserPage = () => {
         </h2>
 
         <div>
-          <label className="block text-lg  font-medium text-gray-400 mb-2">Tên người dùng</label>
+          <label className="block text-lg font-medium text-gray-400 mb-2">Tên người dùng</label>
           <input
             type="text"
             name="username"

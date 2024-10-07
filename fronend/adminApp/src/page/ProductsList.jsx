@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { Link } from 'react-router-dom'
@@ -82,28 +81,28 @@ const ProductsList = () => {
 
       {/* Form Tìm kiếm và Lọc */}
       <form className="mb-8" onSubmit={handleSearch}>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input
-      type="text"
-      name="name"
-      placeholder="Tên sản phẩm"
-      value={filters.name}
-      onChange={handleInputChange}
-      className="w-full bg-gray-700 text-white p-2 rounded"
-    />
-    <input
-      type="number"
-      name="stock"
-      placeholder="Số lượng tồn kho"
-      value={filters.stock}
-      onChange={handleInputChange}
-      className="w-full bg-gray-700 text-white p-2 rounded"
-    />
-  </div>
-  <button type="submit" className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-    Tìm kiếm
-  </button>
-</form>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Tên sản phẩm"
+            value={filters.name}
+            onChange={handleInputChange}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+          />
+          <input
+            type="number"
+            name="stock"
+            placeholder="Số lượng tồn kho"
+            value={filters.stock}
+            onChange={handleInputChange}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+          />
+        </div>
+        <button type="submit" className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Tìm kiếm
+        </button>
+      </form>
 
       <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
         {products && products.length === 0 ? (

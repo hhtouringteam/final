@@ -7,7 +7,11 @@ import 'chart.js/auto'
 Chart.register(...registerables)
 
 const DashboardPage = () => {
-  const [trafficData, setTrafficData] = useState([]) // Dữ liệu traffic cho biểu đồ
+  const [trafficData, setTrafficData] = useState([
+    { month: 'January', traffic: 120, users: 80 },
+    { month: 'February', traffic: 200, users: 10 },
+    { month: 'March', traffic: 200, users: 150 },
+  ])
   const [topSellingProducts, setTopSellingProducts] = useState([]) // Sản phẩm bán chạy nhất
   const [lowStockProducts, setLowStockProducts] = useState([]) // Sản phẩm sắp hết hàng
   const [ordersSummary, setOrdersSummary] = useState({
@@ -17,41 +21,67 @@ const DashboardPage = () => {
     revenue: 0,
   })
 
+  const [newUsers, setNewUsers] = useState(0) // Biến lưu số lượng người dùng mới
   // Hàm fetch dữ liệu từ API
-  const fetchData = async () => {
-    try {
-      // Giả sử API trả về dữ liệu traffic và users (cho biểu đồ)
-      const trafficResponse = await fetch('/api/traffic')
-      const trafficData = await trafficResponse.json()
-      setTrafficData(trafficData)
-
-      // API trả về các sản phẩm bán chạy nhất
-      const topProductsResponse = await fetch('/api/products/top-selling')
-      const topProducts = await topProductsResponse.json()
-      setTopSellingProducts(topProducts)
-
-      // API trả về các sản phẩm sắp hết hàng
-      const lowStockResponse = await fetch('/api/products/low-stock')
-      const lowStock = await lowStockResponse.json()
-      setLowStockProducts(lowStock)
-
-      // API trả về thông tin tổng quan đơn hàng
-      const ordersResponse = await fetch('/api/orders/summary')
-      const orders = await ordersResponse.json()
-      setOrdersSummary(orders)
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  // Fetch dữ liệu khi trang dashboard được render
   useEffect(() => {
-    fetchData()
+    const fetchTrafficData = async () => {
+      //   try {
+      //     const trafficResponse = await fetch('http://localhost:5000/api/traffic')
+      //     if (!trafficResponse.ok) {
+      //       throw new Error('Error fetching traffic data')
+      //     }
+      //     const trafficData = await trafficResponse.json()
+      //     setTrafficData(trafficData)
+      //   } catch (error) {
+      //     console.error('Traffic API error:', error)
+      //   }
+    }
+
+    const fetchOtherData = async () => {
+      try {
+        // Fetch new users
+        const usersResponse = await fetch('http://localhost:5000/api/users/users')
+        const usersData = await usersResponse.json()
+        console.log(usersResponse)
+        setNewUsers(usersData.count)
+
+        // Các fetch khác...
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+      try {
+        const topProductsResponse = await fetch('http://localhost:5000/api/orders/topselling')
+        if (!topProductsResponse.ok) {
+          throw new Error('Error fetching top selling products')
+        }
+        const topProducts = await topProductsResponse.json()
+        setTopSellingProducts(topProducts)
+
+        const lowStockResponse = await fetch('http://localhost:5000/api/orders/lowstock')
+        if (!lowStockResponse.ok) {
+          throw new Error('Error fetching low stock products')
+        }
+        const lowStock = await lowStockResponse.json()
+        setLowStockProducts(lowStock)
+
+        const ordersResponse = await fetch('http://localhost:5000/api/orders/summary')
+        if (!ordersResponse.ok) {
+          throw new Error('Error fetching orders summary')
+        }
+        const orders = await ordersResponse.json()
+        setOrdersSummary(orders)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    // Fetch traffic data trước, nhưng vẫn cho phép các API khác chạy nếu traffic lỗi
+    fetchTrafficData().finally(() => fetchOtherData())
   }, [])
 
   // Dữ liệu cho biểu đồ Line (Traffic và Users)
   const data = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: trafficData.map(item => item.month), // Nhãn cho từng tháng từ API
     datasets: [
       {
         label: 'Traffic',
@@ -144,7 +174,8 @@ const DashboardPage = () => {
         {/* New Users */}
         <div className="bg-gray-800 text-white rounded-lg p-4 shadow-lg hover:bg-gray-700 transition duration-300">
           <h3 className="text-lg font-bold">New Users</h3>
-          <p>{trafficData.length > 0 ? trafficData[0].newUsers : 'No data'}</p>
+
+          <p>{newUsers > 0 ? `${newUsers} users` : 'No data'}</p>
         </div>
       </div>
     </div>

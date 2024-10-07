@@ -8,6 +8,7 @@ const UpdateProduct = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
+    description:'',
     categoryId: '',
     brandId: '',
     vehicleId: '',
@@ -31,6 +32,7 @@ const UpdateProduct = () => {
         setFormData({
           name: data.product.name || '',
           price: data.product.price || '',
+          description: data.product.description || '',
           categoryId: data.product.categoryId._id.name || '',
           brandId: data.product.brandId._id.name || '',
           vehicleId: data.product.vehicleId._id.name || '',
@@ -72,6 +74,7 @@ const UpdateProduct = () => {
     const updatedData = {
       name: formData.name,
       price: formData.price,
+      description: formData.description, // Chỉnh sửa description
       categoryId: formData.categoryId, // Đây là tên chứ không phải ObjectId
       brandId: formData.brandId, // Tương tự với brandId
       vehicleId: formData.vehicleId, // Tương tự với vehicleId
@@ -157,6 +160,16 @@ const UpdateProduct = () => {
                 type="number"
                 name="price"
                 value={formData.price}
+                onChange={handleInputChange}
+                className="w-full bg-gray-700 text-white p-2 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1">Mô tả sản phẩm</label>
+              <textarea
+                name="description"
+                value={formData.description}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
               />

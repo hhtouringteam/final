@@ -1,4 +1,4 @@
-// Footer.jsx
+// Footer.jsxTemplate
 import React from 'react'
 
 const Footer = ({ isSidebarVisible }) => {
