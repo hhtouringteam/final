@@ -8,6 +8,7 @@ router.post("/create", orderController.create);
 
 router.post("/momo", orderController.momoPayment);
 router.post("/momo/ipn", orderController.MomoIPN);
+router.post("/cod", orderController.createOrderCOD);
 
 router.get("/summary", orderController.summary);
 router.get("/lowstock", orderController.lowstock);

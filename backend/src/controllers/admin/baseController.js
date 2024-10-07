@@ -46,16 +46,16 @@ class baseController {
       await newProduct.save();
 
       // Populate các trường liên kết trước khi trả về
-      const populatedProduct = await this.model
-        .findById(newProduct._id)
-        .populate("categoryId", "name description")
-        .populate("brandId", "name description establishedYear country website")
-        .populate(
-          "vehicleId",
-          "name description manufacturer year type engineSize"
-        );
+      // const populatedProduct = await this.model
+      //   .findById(newProduct._id)
+      //   .populate("categoryId", "name description")
+      //   .populate("brandId", "name description establishedYear country website")
+      //   .populate(
+      //     "vehicleId",
+      //     "name description manufacturer year type engineSize"
+      //   );
 
-      res.status(201).json({ [this.singularKey]: populatedProduct });
+      res.status(201).json(newProduct);
     } catch (error) {
       console.error("Error creating product:", error);
       res.status(500).json({
@@ -204,7 +204,6 @@ class baseController {
         .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
     }
   }
-  
 }
 
 module.exports = baseController;

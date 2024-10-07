@@ -34,8 +34,26 @@ class orderController {
   // Xử lý thanh toán MoMo
   async momoPayment(req, res) {
     try {
-      const { orderId, totalPrice } = req.body;
-
+      const {
+        orderId,
+        userId,
+        totalPrice,
+        cartItems,
+        billingInfo,
+        paymentMethod,
+      } = req.body;
+      if (
+        !orderId ||
+        !totalPrice ||
+        !cartItems ||
+        !billingInfo ||
+        !userId ||
+        !paymentMethod
+      ) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu thông tin đơn hàng" });
+      }
       const momoRequestData = {
         partnerCode: process.env.MOMO_PARTNER_CODE || "MOMO",
         accessKey: process.env.MOMO_ACCESS_KEY || "F8BBA842ECF85",
@@ -45,12 +63,17 @@ class orderController {
         amount: totalPrice.toString(),
         orderId: orderId,
         orderInfo: `Payment for order #${orderId}`,
+        billingInfo,
+        paymentMethod,
+        paymentStatus: "Pending",
+        orderStatus: "Processing",
         returnUrl: "http://localhost:3001/payment-result",
         notifyUrl:
           "https://b2e2-58-186-47-254.ngrok-free.app/api/orders/momo/ipn",
         requestType: "captureMoMoWallet",
         extraData: "",
       };
+
       console.log(momoRequestData);
       const rawSignature = `partnerCode=${momoRequestData.partnerCode}&accessKey=${momoRequestData.accessKey}&requestId=${momoRequestData.requestId}&amount=${momoRequestData.amount}&orderId=${momoRequestData.orderId}&orderInfo=${momoRequestData.orderInfo}&returnUrl=${momoRequestData.returnUrl}&notifyUrl=${momoRequestData.notifyUrl}&extraData=${momoRequestData.extraData}`;
 
@@ -72,6 +95,26 @@ class orderController {
 
       const data = await response.json();
 
+      // http://localhost:3001/payment-result?partnerCode=MOMO&accessKey=F8BBA842ECF85&requestId=66feb2621e9e73ca52feef69_1727967844674&amount=2121&orderId=66feb2621e9e73ca52feef69&orderInfo=Payment%20for%20order%20%2366feb2621e9e73ca52feef69&orderType=momo_wallet&transId=4180794999&message=Success&localMessage=Th%C3%A0nh%20c%C3%B4ng&responseTime=2024-10-03%2022:07:11&errorCode=0&payType=web&extraData=&signature=0430d0b98c3af98a268c812a8472b662d559b54e513d758885dbbed2da04c627
+      /*{
+  "partnerCode": "MOMO",
+  "accessKey": "F8BBA842ECF85",
+  "requestId": "66feb2621e9e73ca52feef69_1727967844674",
+  "amount": "2121",
+  "orderId": "66feb2621e9e73ca52feef69",
+  "orderInfo": "Payment for order #66feb2621e9e73ca52feef69",
+  "orderType": "momo_wallet",
+  "transId": "4180794999",
+  "message": "Success",
+  "localMessage": "Thành công",
+  "responseTime": "2024-10-03 22:07:11",
+  "errorCode": "0",
+  "payType": "web",
+  "extraData": "",
+  "signature": "0430d0b98c3af98a268c812a8472b662d559b54e513d758885dbbed2da04c627"
+}
+*/
+
       if (data.payUrl) {
         res.json({ payUrl: data.payUrl });
       } else {
@@ -87,32 +130,84 @@ class orderController {
 
   // Nhận thông báo từ MoMo
   async MomoIPN(req, res) {
-    console.log("MomoIPN", MomoIPN);
     try {
-      const { orderId, resultCode } = req.body;
-      console.log(req.body);
+      const data = req.body;
+      console.log("MoMo IPN Data:", data);
 
-      if (resultCode === 0) {
-        // Thanh toán thành công
-        await Order.findByIdAndUpdate(orderId, { status: "Paid" });
-        return res
-          .status(200)
-          .json({ message: "Payment successful and order status updated." });
+      // Xác thực chữ ký (signature) nếu cần thiết
+
+      const orderId = data.orderId;
+      const order = await Order.findById(orderId);
+
+      if (order) {
+        if (data.errorCode === "0") {
+          order.paymentStatus = "Paid";
+          order.orderStatus = "Confirmed";
+          await order.save();
+          res.status(200).json({ message: "Order updated successfully" });
+        } else {
+          order.paymentStatus = "Failed";
+          order.orderStatus = "Cancelled";
+          await order.save();
+          res
+            .status(200)
+            .json({ message: "Order updated with failure status" });
+        }
       } else {
-        // Thanh toán thất bại hoặc hủy bỏ
-        await Order.findByIdAndUpdate(orderId, { status: "Failed" });
-        return res
-          .status(200)
-          .json({ message: "Payment failed or cancelled." });
+        res.status(404).json({ message: "Order not found" });
       }
     } catch (error) {
-      console.error("Error processing MoMo IPN:", error);
-      return res
-        .status(500)
-        .json({ message: "Error processing payment notification." });
+      console.error("Error handling MoMo IPN", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
   }
 
+  async createOrderCOD(req, res) {
+    try {
+      console.log("Payload received in backend:", req.body);
+      const {
+        orderId,
+        totalPrice,
+        cartItems,
+        billingInfo,
+        userId,
+        paymentMethod,
+      } = req.body;
+
+      // Kiểm tra xem các trường cần thiết có đủ không
+      if (
+        (!orderId || !totalPrice || !cartItems || !billingInfo || !userId,
+        !paymentMethod)
+      ) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Thiếu thông tin đơn hàng" });
+      }
+
+      const newOrder = new Order({
+        orderId: orderId,
+        userId,
+        cartItems,
+        totalPrice,
+        billingInfo,
+        paymentMethod,
+        paymentStatus: "Pending",
+        orderStatus: "Processing",
+      });
+
+      // Lưu đơn hàng vào cơ sở dữ liệu
+      await newOrder.save();
+
+      res.status(201).json({
+        success: true,
+        message: "Đặt hàng thành công",
+        order: newOrder,
+      });
+    } catch (error) {
+      console.error("Error in createOrderCOD:", error);
+      res.status(500).json({ success: false, message: "Lỗi server" });
+    }
+  }
   async getOrder(req, res) {
     const { userId } = req.params; // Lấy userId từ URL
     console.log(req.params); // In ra toàn bộ req.params để kiểm tra
