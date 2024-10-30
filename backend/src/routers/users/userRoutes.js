@@ -36,4 +36,5 @@ router.get(
   userController.adminDashboard
 );
 
+
 module.exports = router;

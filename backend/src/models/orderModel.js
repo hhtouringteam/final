@@ -7,6 +7,17 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
+    orderCode: {
+      type: Number,
+      unique: true,
+      required: true,
+    },
+    app_trans_id: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     cartItems: [
       {
         productId: {
@@ -23,6 +34,7 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    installmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Installment" },
     billingInfo: {
       username: String,
       country: String,
@@ -32,12 +44,23 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["COD", "MoMo", "Credit Card", "Paypal"],
-  
+      enum: ["COD", "ZaloPay", "PayOS"],
     },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
+      enum: {
+        values: [
+          "Pending",
+          "pending",
+          "Paid",
+          "paid",
+          "Failed",
+          "failed",
+          "CANCELED",
+          "cancelled",
+        ],
+        message: "{VALUE} is not a valid payment status",
+      },
       default: "Pending",
     },
     orderStatus: {

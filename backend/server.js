@@ -1,5 +1,3 @@
-// server.js
-
 const express = require("express");
 const app = express();
 require("dotenv").config();
@@ -9,9 +7,9 @@ const morgan = require("morgan");
 const connectDB = require("./src/configs/db"); // Kết nối cơ sở dữ liệu
 const router = require("./src/routers"); // Định nghĩa các route
 const bodyParser = require("body-parser");
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Phục vụ các file
 
 const port = process.env.PORT || 5000; // Port cho server (sử dụng từ biến môi trường nếu có)
-app.use("/uploads", express.static("uploads"));
 
 // Kết nối cơ sở dữ liệu
 connectDB();

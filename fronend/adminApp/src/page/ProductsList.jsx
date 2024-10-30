@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react'
+// src/components/ProductsList.jsx
+
+import React, { useState, useEffect, useContext } from 'react'
 import { toast } from 'react-toastify'
 import { Link } from 'react-router-dom'
+import { EntitiesContext } from '../context/EntitiesContext'
 
 const ProductsList = () => {
+  const { brands, categories, vehicles, loading } = useContext(EntitiesContext)
   const [products, setProducts] = useState([]) // Khởi tạo với mảng rỗng
   const [filters, setFilters] = useState({
     name: '',
@@ -20,11 +24,15 @@ const ProductsList = () => {
     try {
       const query = new URLSearchParams(filters).toString() // Tạo query string từ filters
       const response = await fetch(`http://localhost:5000/api/admin/products?${query}`)
+      if (!response.ok) {
+        throw new Error('Không thể fetch danh sách sản phẩm!')
+      }
       const data = await response.json()
       setProducts(data.products || []) // Nếu không có products, trả về mảng rỗng
-      console.log(data.products) // Debug dữ liệu trả về
+      console.log('Fetched Products:', data.products) // Debug dữ liệu trả về
     } catch (error) {
       console.error('Error fetching products:', error)
+      toast.error('Lỗi khi fetch danh sách sản phẩm!')
     }
   }
 
@@ -34,10 +42,10 @@ const ProductsList = () => {
 
   const handleInputChange = e => {
     const { name, value } = e.target
-    setFilters({
-      ...filters,
+    setFilters(prevFilters => ({
+      ...prevFilters,
       [name]: value,
-    })
+    }))
   }
 
   const handleSearch = e => {
@@ -60,9 +68,10 @@ const ProductsList = () => {
 
       if (response.ok) {
         toast.success('Sản phẩm đã được xóa!')
-        setProducts(products.filter(product => product._id !== productToDelete._id)) // Loại bỏ sản phẩm đã xóa khỏi danh sách
+        setProducts(prevProducts => prevProducts.filter(product => product._id !== productToDelete._id))
       } else {
-        toast.error('Xóa sản phẩm không thành công!')
+        const errorData = await response.json()
+        toast.error(errorData.message || 'Xóa sản phẩm không thành công!')
       }
     } catch (error) {
       console.error('Error deleting product:', error)
@@ -81,7 +90,7 @@ const ProductsList = () => {
 
       {/* Form Tìm kiếm và Lọc */}
       <form className="mb-8" onSubmit={handleSearch}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <input
             type="text"
             name="name"
@@ -90,6 +99,57 @@ const ProductsList = () => {
             onChange={handleInputChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
           />
+          <select
+            name="category"
+            value={filters.category}
+            onChange={handleInputChange}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Chọn danh mục</option>
+            {Array.isArray(categories) && categories.length > 0 ? (
+              categories.map(category => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>Không có danh mục nào</option>
+            )}
+          </select>
+          <select
+            name="brand"
+            value={filters.brand}
+            onChange={handleInputChange}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Chọn thương hiệu</option>
+            {Array.isArray(brands) && brands.length > 0 ? (
+              brands.map(brand => (
+                <option key={brand._id} value={brand._id}>
+                  {brand.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>Không có thương hiệu nào</option>
+            )}
+          </select>
+          <select
+            name="vehicle"
+            value={filters.vehicle}
+            onChange={handleInputChange}
+            className="w-full bg-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Chọn phương tiện</option>
+            {Array.isArray(vehicles) && vehicles.length > 0 ? (
+              vehicles.map(vehicle => (
+                <option key={vehicle._id} value={vehicle._id}>
+                  {vehicle.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>Không có phương tiện nào</option>
+            )}
+          </select>
           <input
             type="number"
             name="stock"
@@ -97,22 +157,25 @@ const ProductsList = () => {
             value={filters.stock}
             onChange={handleInputChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
+            min="0"
           />
         </div>
-        <button type="submit" className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button type="submit" className="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-700">
           Tìm kiếm
         </button>
       </form>
 
       <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
-        {products && products.length === 0 ? (
+        {loading ? (
+          <p className="text-center py-8">Đang tải dữ liệu...</p>
+        ) : products && products.length === 0 ? (
           <p className="text-center py-8">Chưa có sản phẩm nào.</p>
         ) : (
           <table className="min-w-full leading-normal">
             <thead>
               <tr className="bg-gray-900">
                 <th className="px-5 py-3 border-b-2 border-gray-700 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                  ID
+                  STT
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-700 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   Tên
@@ -149,16 +212,24 @@ const ProductsList = () => {
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">{index + 1}</td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.name}</td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">
-                    {product.imageUrl ? (
-                      <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                    {Array.isArray(product.imageUrl) && product.imageUrl.length > 0 ? (
+                      <img
+                        src={product.imageUrl[0]}
+                        alt={`${product.name} 1`}
+                        className="w-16 h-16 object-cover rounded"
+                      />
                     ) : (
                       'Không có ảnh'
                     )}
                   </td>
-                  <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.price} VND</td>
+                  <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.price.toLocaleString()} VND</td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.categoryId?.name || 'N/A'}</td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.brandId?.name || 'N/A'}</td>
-                  <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.vehicleId?.name || 'N/A'}</td>
+                  <td className="px-5 py-5 border-b border-gray-700 text-sm">
+                    {Array.isArray(product.vehicleId) && product.vehicleId.length > 0
+                      ? product.vehicleId.map(v => v.name).join(', ')
+                      : 'N/A'}
+                  </td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">{product.stock}</td>
                   <td className="px-5 py-5 border-b border-gray-700 text-sm">
                     <p>
@@ -183,13 +254,13 @@ const ProductsList = () => {
                         to={`/update/${product._id}`}
                         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
                       >
-                        update
+                        Update
                       </Link>
                       <button
                         onClick={() => handleDeleteClick(product)}
                         className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
                       >
-                        delete
+                        Delete
                       </button>
                     </div>
                   </td>

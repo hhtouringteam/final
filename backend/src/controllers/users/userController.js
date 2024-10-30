@@ -2,6 +2,7 @@ const User = require("../../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const Order = require("../../models/orderModel");
 const { OAuth2Client } = require("google-auth-library");
 const crypto = require("crypto");
 const clinet_id = process.env.GG_CLIENT_ID; // Ensure this matches your Google Client ID
@@ -387,6 +388,7 @@ class userController {
         .json({ message: "Lỗi khi lấy tổng số người dùng", error });
     }
   }
+
 }
 
 module.exports = new userController();

@@ -1,9 +1,55 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Menu, Notifications, Email, Settings } from '@mui/icons-material' // Import các biểu tượng
 import { AuthContext } from '../../context/AuthContext' // Import AuthContext để lấy thông tin người dùng
-
+import { NavLink } from 'react-router-dom'
 const Header = ({ toggleSidebar, isSidebarVisible }) => {
   const { user } = useContext(AuthContext) // Lấy thông tin người dùng từ AuthContext
+  const [unreadCounts, setUnreadCounts] = useState({
+    notifications: 0,
+    emails: 0,
+  })
+  useEffect(() => {
+    if (!user || !user.token) return
+
+    const fetchUnreadCounts = async () => {
+      try {
+        const [notificationsRes, emailsRes] = await Promise.all([
+          fetch('http://localhost:5000/api/notifications/unread-count', {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }),
+          fetch('http://localhost:5000/api/emails/unread-count', {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }),
+        ])
+
+        const notificationsData = await notificationsRes.json()
+        const emailsData = await emailsRes.json()
+
+        if (notificationsRes.ok && emailsRes.ok) {
+          setUnreadCounts({
+            notifications: notificationsData.count,
+            emails: emailsData.count,
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching unread counts:', error)
+      }
+    }
+
+    fetchUnreadCounts()
+
+    const interval = setInterval(() => {
+      fetchUnreadCounts()
+    }, 60000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [user])
 
   return (
     <div
@@ -29,18 +75,29 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
         </nav>
       </div>
 
-      {/* Biểu tượng thông báo và avatar bên phải */}
       <div className="flex items-center space-x-4">
         {/* Biểu tượng thông báo với số lượng */}
         <div className="relative">
-          <Notifications className="text-white cursor-pointer" />
-          <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1">5</span>
+          <NavLink to="/notifications" className="flex items-center">
+            <Notifications className="text-white cursor-pointer" />
+            {unreadCounts.notifications > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1">
+                {unreadCounts.notifications}
+              </span>
+            )}
+          </NavLink>
         </div>
 
         {/* Biểu tượng Email với số lượng */}
         <div className="relative">
-          <Email className="text-white cursor-pointer" />
-          <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">5</span>
+          <NavLink to="/emailogs" className="flex items-center">
+            <Email className="text-white cursor-pointer" />
+            {unreadCounts.emails > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
+                {unreadCounts.emails}
+              </span>
+            )}
+          </NavLink>
         </div>
 
         {/* Hiển thị tên người dùng */}

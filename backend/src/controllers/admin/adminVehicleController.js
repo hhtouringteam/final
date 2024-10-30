@@ -1,4 +1,3 @@
-
 const baseController = require("./baseController");
 const Vehicle = require("../../models/vehicleModel");
 

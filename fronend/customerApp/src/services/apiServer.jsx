@@ -16,7 +16,7 @@ const apiServer = {
 
   getFeaturedProducts: async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/products`)
+      const response = await fetch(`${config.apiUrl}/products/featured`)
       if (!response.ok) {
         throw new Error('Error fetching featured products')
       }
@@ -50,6 +50,20 @@ const apiServer = {
     } catch (error) {
       console.error('Error:', error)
       throw error
+    }
+  },
+
+  getAllProducts: async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/products/trending`)
+      if (!response.ok) {
+        throw new Error('Error fetching all products')
+      }
+      const data = await response.json() // Sử dụng await để lấy dữ liệu JSON thực tế
+      return data // Trả về dữ liệu JSON đã parse
+    } catch (error) {
+      console.error('Error fetching all products:', error)
+      throw error // Ném lỗi ra để có thể xử lý ở phía gọi hàm
     }
   },
 

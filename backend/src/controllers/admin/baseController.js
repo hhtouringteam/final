@@ -45,16 +45,6 @@ class baseController {
       console.log("....", newProduct);
       await newProduct.save();
 
-      // Populate các trường liên kết trước khi trả về
-      // const populatedProduct = await this.model
-      //   .findById(newProduct._id)
-      //   .populate("categoryId", "name description")
-      //   .populate("brandId", "name description establishedYear country website")
-      //   .populate(
-      //     "vehicleId",
-      //     "name description manufacturer year type engineSize"
-      //   );
-
       res.status(201).json(newProduct);
     } catch (error) {
       console.error("Error creating product:", error);
@@ -64,11 +54,11 @@ class baseController {
       });
     }
   }
-
   async update(req, res) {
     try {
       const { id } = req.params;
-      const { categoryId, brandId, vehicleId, ...otherData } = req.body;
+      const { categoryId, brandId, vehicleId, specifications, ...otherData } =
+        req.body;
 
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ message: "ID sản phẩm không hợp lệ" });
@@ -84,62 +74,50 @@ class baseController {
         return res.status(404).json({ message: "Không tìm thấy sản phẩm!" });
       }
 
-      // Kiểm tra nếu tên danh mục mới khác danh mục hiện tại
+      // Xử lý danh mục
       let category;
-      if (categoryId && categoryId !== product.categoryId.name) {
-        category = await Category.findOne({ name: categoryId });
+      if (categoryId && categoryId !== product.categoryId._id.toString()) {
+        category = await Category.findById(categoryId);
         if (!category) {
-          category = new Category({ name: categoryId });
-          await category.save();
-        }
-        // Xóa danh mục cũ nếu không còn sản phẩm nào tham chiếu đến
-        if (
-          (await Product.countDocuments({
-            categoryId: product.categoryId._id,
-          })) === 1
-        ) {
-          await Category.findByIdAndDelete(product.categoryId._id);
+          return res.status(400).json({ message: "Danh mục không hợp lệ!" });
         }
       } else {
         category = product.categoryId; // Giữ nguyên danh mục cũ
       }
 
-      // Kiểm tra nếu tên thương hiệu mới khác thương hiệu hiện tại
+      // Xử lý thương hiệu
       let brand;
-      if (brandId && brandId !== product.brandId.name) {
-        brand = await Brand.findOne({ name: brandId });
+      if (brandId && brandId !== product.brandId._id.toString()) {
+        brand = await Brand.findById(brandId);
         if (!brand) {
-          brand = new Brand({ name: brandId });
-          await brand.save();
-        }
-        // Xóa thương hiệu cũ nếu không còn sản phẩm nào tham chiếu đến
-        if (
-          (await Product.countDocuments({ brandId: product.brandId._id })) === 1
-        ) {
-          await Brand.findByIdAndDelete(product.brandId._id);
+          return res.status(400).json({ message: "Thương hiệu không hợp lệ!" });
         }
       } else {
         brand = product.brandId; // Giữ nguyên thương hiệu cũ
       }
 
-      // Kiểm tra nếu tên phương tiện mới khác phương tiện hiện tại
-      let vehicle;
-      if (vehicleId && vehicleId !== product.vehicleId.name) {
-        vehicle = await Vehicle.findOne({ name: vehicleId });
-        if (!vehicle) {
-          vehicle = new Vehicle({ name: vehicleId });
-          await vehicle.save();
+      // Xử lý phương tiện (vehicleId là mảng)
+      let vehicleIds = vehicleId || [];
+      // Kiểm tra tất cả các vehicleId có hợp lệ không
+      for (let vehId of vehicleIds) {
+        if (!mongoose.Types.ObjectId.isValid(vehId)) {
+          return res
+            .status(400)
+            .json({ message: `Vehicle ID ${vehId} không hợp lệ!` });
         }
-        // Xóa phương tiện cũ nếu không còn sản phẩm nào tham chiếu đến
-        if (
-          (await Product.countDocuments({
-            vehicleId: product.vehicleId._id,
-          })) === 1
-        ) {
-          await Vehicle.findByIdAndDelete(product.vehicleId._id);
+        const vehicleExists = await Vehicle.findById(vehId);
+        if (!vehicleExists) {
+          return res
+            .status(400)
+            .json({ message: `Vehicle ID ${vehId} không tồn tại!` });
         }
-      } else {
-        vehicle = product.vehicleId; // Giữ nguyên phương tiện cũ
+      }
+
+      // Xử lý specifications (loại bỏ `vachi` nếu cần)
+      let specs = {};
+      if (specifications) {
+        const { vachi, ...remainingSpecs } = specifications; // Loại bỏ `vachi`
+        specs = remainingSpecs;
       }
 
       // Cập nhật sản phẩm với ObjectId của danh mục, thương hiệu và phương tiện
@@ -147,12 +125,19 @@ class baseController {
         id,
         {
           ...otherData,
+          specifications: specs, // Lưu specifications đã loại bỏ `vachi`
           categoryId: category._id,
           brandId: brand._id,
-          vehicleId: vehicle._id,
+          vehicleId: vehicleIds, // Gán mảng vehicleId
         },
         { new: true }
-      );
+      )
+        .populate("categoryId", "name description")
+        .populate("brandId", "name description establishedYear country website")
+        .populate(
+          "vehicleId",
+          "name description manufacturer year type engineSize"
+        );
 
       res.status(200).json({ product: updatedProduct });
     } catch (error) {
@@ -189,7 +174,10 @@ class baseController {
       const product = await Product.findById(id)
         .populate("categoryId", "name description")
         .populate("brandId", "name description establishedYear country website")
-        .populate("vehicleId", "name manufacturer year type engineSize");
+        .populate(
+          "vehicleId",
+          "name description manufacturer year type engineSize"
+        );
 
       if (!product) {
         return res.status(404).json({ message: "Không tìm thấy sản phẩm!" });

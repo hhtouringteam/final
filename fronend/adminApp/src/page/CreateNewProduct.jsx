@@ -1,6 +1,7 @@
 // src/page/AdminPanel.js
 import React, { useState, useContext } from 'react'
 import { toast } from 'react-toastify'
+import Select from 'react-select'
 import { EntitiesContext } from '../context/EntitiesContext'
 
 const CreateNewProduct = () => {
@@ -11,10 +12,11 @@ const CreateNewProduct = () => {
   const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [brandId, setBrandId] = useState('')
-  const [vehicleId, setVehicleId] = useState('')
+  const [vehicleId, setVehicleId] = useState([])
   const [itemCode, setItemCode] = useState('')
   const [stock, setStock] = useState(0)
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState([])
+  const [imageFiles, setImageFiles] = useState([])
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [products, setProducts] = useState([])
   const [specifications, setSpecifications] = useState({
@@ -24,6 +26,7 @@ const CreateNewProduct = () => {
     spokeCount: '',
     weight: '',
   })
+
   const handleSpecificationsChange = e => {
     const { name, value } = e.target
     setSpecifications({
@@ -31,7 +34,34 @@ const CreateNewProduct = () => {
       [name]: value,
     })
   }
-  const handleAddProduct = e => {
+  const handleImageChange = e => {
+    const files = Array.from(e.target.files)
+    setImageFiles(prevFiles => [...prevFiles, ...files])
+  }
+
+  const handleUploadImages = async () => {
+    const formData = new FormData()
+    imageFiles.forEach(file => {
+      formData.append('images', file)
+    })
+
+    try {
+      const response = await fetch('http://localhost:5000/api/uploads', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi upload hình ảnh!')
+      }
+
+      const data = await response.json()
+      setImageUrl(data.imageUrls) // Lưu URL của hình ảnh đã được upload
+    } catch (error) {
+      toast.error(error.message || 'Lỗi khi upload hình ảnh!')
+    }
+  }
+  const handleAddProduct = async e => {
     e.preventDefault()
 
     if (!name || !price || !description || !categoryId || !brandId || !vehicleId) {
@@ -43,7 +73,7 @@ const CreateNewProduct = () => {
       toast.error('Giá sản phẩm phải lớn hơn 0!')
       return
     }
-
+    await handleUploadImages()
     setShowConfirmation(true)
   }
 
@@ -57,7 +87,7 @@ const CreateNewProduct = () => {
       vehicleId,
       itemCode: itemCode || '', // Nếu không nhập thì gán giá trị mặc định là chuỗi trống
       stock: parseInt(stock, 10) || 0, // Nếu không nhập thì gán giá trị mặc định là 0
-      imageUrl: imageUrl || '', // Nếu không nhập thì gán giá trị mặc định là chuỗi trống
+      imageUrl: imageUrl,
       specifications: {
         size: specifications.size || '', // Nếu không nhập thì gán giá trị mặc định là chuỗi trống
         material: specifications.material || '', // Tương tự cho các trường khác
@@ -89,10 +119,11 @@ const CreateNewProduct = () => {
       setDescription('')
       setCategoryId('')
       setBrandId('')
-      setVehicleId('')
+      setVehicleId([])
       setItemCode('')
       setStock(0)
-      setImageUrl('')
+      setImageUrl([])
+      setImageFiles([])
       setSpecifications({
         size: '',
         material: '',
@@ -117,6 +148,10 @@ const CreateNewProduct = () => {
   const selectedCategory = categoryId ? categories.find(cat => cat?._id === categoryId) : null
   const selectedBrand = brandId ? brands.find(brand => brand?._id === brandId) : null
   const selectedVehicle = vehicleId ? vehicles.find(vehicle => vehicle?._id === vehicleId) : null
+  const vehicleOptions = vehicles.map(vehicle => ({
+    value: vehicle._id,
+    label: vehicle.name,
+  }))
   return (
     <div className="text-white mb-20">
       <h1 className="text-3xl mb-6">Thêm Sản Phẩm</h1>
@@ -205,25 +240,15 @@ const CreateNewProduct = () => {
         {/* Phương tiện */}
         <div>
           <label className="block mb-1">Phương tiện</label>
-          <select
-            value={vehicleId}
-            onChange={e => setVehicleId(e.target.value)}
-            className="w-full bg-gray-700 text-white p-2 rounded"
-            required
-          >
-            <option value="">Chọn phương tiện</option>
-            {vehicles.length > 0 ? (
-              vehicles.map(vehicle => (
-                <option key={vehicle._id} value={vehicle._id}>
-                  {vehicle.name}
-                </option>
-              ))
-            ) : (
-              <option disabled>Không có phương tiện nào</option>
-            )}
-          </select>
+          <Select
+            isMulti
+            options={vehicleOptions}
+            value={vehicleOptions.filter(option => vehicleId.includes(option.value))}
+            onChange={selectedOptions => setVehicleId(selectedOptions.map(option => option.value))}
+            className="text-black"
+            placeholder="Chọn phương tiện..."
+          />
         </div>
-
         {/* Mã sản phẩm */}
         <div>
           <label className="block mb-1">Mã sản phẩm</label>
@@ -251,14 +276,23 @@ const CreateNewProduct = () => {
 
         {/* URL Hình ảnh */}
         <div>
-          <label className="block mb-1">URL Hình ảnh</label>
+          <label className="block mb-1">Chọn Hình ảnh</label>
           <input
-            type="url"
-            placeholder="URL Hình ảnh"
-            value={imageUrl}
-            onChange={e => setImageUrl(e.target.value)}
+            type="file"
+            multiple
+            onChange={handleImageChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {imageFiles.map((file, index) => (
+              <img
+                key={index}
+                src={URL.createObjectURL(file)}
+                alt={`Product Preview ${index + 1}`}
+                className="w-20 h-20 object-cover rounded"
+              />
+            ))}
+          </div>
         </div>
         <div>
           <label className="block mb-1">Kích thước</label>

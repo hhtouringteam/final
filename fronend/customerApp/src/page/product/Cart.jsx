@@ -3,7 +3,6 @@ import { useCart } from '../../context/CartContext'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
 export default function Cart() {
-
   const { cart, clearCart, removeFromCart, updateQuantity, totalPriceInCart, totalItemsInCart } = useCart()
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
@@ -16,18 +15,17 @@ export default function Cart() {
     }
   }
 
-
   const handleDecreaseQuantity = id => {
     const item = cart.find(item => item._id === id)
     if (item.quantity > 1) {
-      updateQuantity(id, item.quantity - 1) 
+      updateQuantity(id, item.quantity - 1)
     } else {
-      removeFromCart(id) 
+      removeFromCart(id)
     }
   }
 
   const handleRemoveProduct = id => {
-    const item = cart.find(item => item._id === id) 
+    const item = cart.find(item => item._id === id)
 
     if (item.quantity > 1) {
       updateQuantity(id, item.quantity - 1)
@@ -36,53 +34,24 @@ export default function Cart() {
     }
   }
 
-  const handleCheckout = async () => {
+  const handleProceedToCheckout = () => {
     if (totalPriceInCart > 0) {
-     
+      // Lưu thông tin giỏ hàng vào localStorage
       const cartItems = cart.map(item => ({
-        productId: item._id, 
+        productId: item._id,
         name: item.name,
-        price: item.price, 
-        quantity: item.quantity, 
+        price: item.price,
+        quantity: item.quantity,
+        imageUrl: item.imageUrl,
       }))
-      console.log('cartItems', cartItems)
-
-  
-      const orderData = {
-        userId: user.userId, 
-        cartItems, 
-        totalPrice: totalPriceInCart, 
+      const cartData = {
+        cartItems,
+        totalPrice: totalPriceInCart,
+        totalItems: totalItemsInCart,
       }
-      console.log('orderData:', orderData)
-
-      try {
-
-        const response = await fetch('http://localhost:5000/api/orders/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(orderData), // Gửi dữ liệu đơn hàng
-        })
-
-        const createdOrder = await response.json()
-
-        if (response.ok) {
-          console.log('Order created:', createdOrder)
-
-  
-          localStorage.setItem('orderData', JSON.stringify(createdOrder))
-
-     
-          clearCart()
-
-          navigate('/checkout')
-        } else {
-          console.error('Error creating order:', createdOrder.message)
-        }
-      } catch (error) {
-        console.error('Error creating order:', error)
-      }
+      localStorage.setItem('cartData', JSON.stringify(cartData))
+      // Điều hướng đến trang Checkout
+      navigate('/checkout')
     } else {
       alert('Your cart is empty! Please add items to proceed.')
     }
@@ -94,7 +63,6 @@ export default function Cart() {
         <h1 className="text-2xl font-bold mb-4">Shopping Cart</h1>
       </div>
 
-      
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-200">
@@ -112,7 +80,7 @@ export default function Cart() {
                 <td className="p-3">
                   <button
                     className="bg-red-500 text-white px-3 py-1 rounded"
-                    onClick={() => handleRemoveProduct(item._id)} 
+                    onClick={() => handleRemoveProduct(item._id)}
                   >
                     X
                   </button>
@@ -130,7 +98,7 @@ export default function Cart() {
                       value={item.quantity}
                       readOnly
                     />
-                 
+
                     <div className="absolute right-20 top-0 flex flex-col justify-center h-full">
                       <button
                         className="w-4 h-4 flex items-center justify-center cursor-pointer transition-colors duration-300 ease-out"
@@ -163,7 +131,7 @@ export default function Cart() {
                     </div>
                   </div>
                 </td>
-                <td className="p-3">${parseFloat(item.price) * item.quantity}</td> 
+                <td className="p-3">${parseFloat(item.price) * item.quantity}</td>
               </tr>
             ))}
           </tbody>
@@ -181,7 +149,6 @@ export default function Cart() {
         </div>
         <div className="w-full md:w-2/3 p-2 flex justify-between items-center">
           <button className="bg-blue-500 text-white px-4 py-2 rounded">Apply Coupon</button>{' '}
-     
         </div>
       </div>
 
@@ -190,27 +157,26 @@ export default function Cart() {
         <div className="border-b pb-2">
           <div className="flex">
             <span className="mr-4">Total quantity</span>
-            <span>{totalItemsInCart} product</span> 
+            <span>{totalItemsInCart} product</span>
           </div>
         </div>
 
         <div className="border-b pb-2">
           <div className="flex">
             <span className="mr-4">Subtotal</span>
-            <span>${totalPriceInCart}</span> 
+            <span>${totalPriceInCart}</span>
           </div>
         </div>
 
         <div className="mt-2">
           <div className="flex">
             <span className="mr-4 mb-4">Total</span>
-            <span>${totalPriceInCart}</span> 
+            <span>${totalPriceInCart}</span>
           </div>
         </div>
 
-   
         <button
-          onClick={handleCheckout}
+          onClick={handleProceedToCheckout}
           className="bg-green-500 hover:bg-green-600 text-white py-2 px-8 rounded mt-4 block text-center"
         >
           Proceed to Checkout

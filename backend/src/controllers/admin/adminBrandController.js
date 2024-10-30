@@ -13,7 +13,7 @@ const Brand = require("../../models/brandModel");
 
 class adminBrandController extends baseController {
   constructor() {
-    super(Brand, 'brands', 'brand'); // Truyền model, pluralKey, singularKey
+    super(Brand, "brands", "brand"); // Truyền model, pluralKey, singularKey
   }
 
   // Nếu cần, bạn có thể override thêm các phương thức khác ở đây

@@ -10,7 +10,7 @@ const AddVehicleForm = () => {
   const [type, setType] = useState('')
   const [engineSize, setEngineSize] = useState('')
   const { setVehicles } = useContext(EntitiesContext)
-
+  const [imageUrl, setImageUrl] = useState('')
   const handleAddVehicle = async e => {
     e.preventDefault()
 
@@ -24,6 +24,7 @@ const AddVehicleForm = () => {
       description,
       manufacturer: manufacturer,
       year: year,
+      imageUrl,
       type: type,
       engineSize: engineSize,
     }
@@ -51,7 +52,7 @@ const AddVehicleForm = () => {
       setYear('')
       setType('')
       setEngineSize('')
-
+      setImageUrl('')
       toast.success('Thêm phương tiện thành công!')
     } catch (error) {
       toast.error(error.message || 'Lỗi khi thêm phương tiện!')
@@ -61,7 +62,7 @@ const AddVehicleForm = () => {
 
   return (
     <form onSubmit={handleAddVehicle} className="bg-gray-800 p-4 rounded">
-      <h2 className="text-xl mb-4">Add Brand</h2>
+      <h2 className="text-xl mb-4"> Add Vehicle</h2>
       <input
         type="text"
         placeholder="Vehicle Name"
@@ -74,6 +75,13 @@ const AddVehicleForm = () => {
         placeholder="Description"
         value={description}
         onChange={e => setDescription(e.target.value)}
+        className="bg-gray-700 text-white p-2 mb-2 block w-full rounded"
+      />
+      <input
+        type="url"
+        placeholder="Image URL"
+        value={imageUrl}
+        onChange={e => setImageUrl(e.target.value)}
         className="bg-gray-700 text-white p-2 mb-2 block w-full rounded"
       />
       <input
@@ -105,7 +113,7 @@ const AddVehicleForm = () => {
         className="bg-gray-700 text-white p-2 mb-2 block w-full rounded"
       />
       <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-      Add Brand
+        Add Vehicle
       </button>
     </form>
   )

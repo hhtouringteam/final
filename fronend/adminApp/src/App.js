@@ -13,9 +13,10 @@ import UpdateProduct from './page/UpdateProduct'
 import CreateNewProduct from './page/CreateNewProduct'
 import RelatedInformation from './page/RelatedInformation'
 import AdminDashboard from './page/AdminDashboard'
-
-import PrivateRoute from './components/PrivateRoute' // Import PrivateRoute
-
+import OrderDetailPage from './page/OrderDetailPage'
+import PrivateRoute from './components/PrivateRoute'
+import EmailLogs from './page/EmailLogs'
+import Notifications from './page/Notifications'
 function App() {
   return (
     <AuthProvider>
@@ -24,7 +25,6 @@ function App() {
         <Routes>
           {/* Route cho trang login */}
           <Route path="/login" element={<LoginPage />} />
-
           {/* Route cho layout admin với bảo vệ PrivateRoute */}
           <Route
             path="/*"
@@ -37,13 +37,16 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="create" element={<CreateNewProduct />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders/:orderId" element={<OrderDetailPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="createrelatedinformation" element={<RelatedInformation />} />
             <Route path="list" element={<ProductsList />} />
             <Route path="update/:id" element={<UpdateProduct />} />
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="emailogs" element={<EmailLogs />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
-
+          
           {/* Chuyển hướng mặc định */}
           <Route path="" element={<Navigate to="/login" replace />} />
         </Routes>

@@ -9,37 +9,7 @@ class adminProductController extends baseController {
     super(Product, "products", "product"); // Truyền model, pluralKey, singularKey
   }
 
-  // async getAll(req, res) {
-  //   try {
-  //     const { name, stock } = req.query;
-
-  //     // Tạo đối tượng filter
-  //     let filter = {};
-
-  //     // Tìm theo tên sản phẩm
-  //     if (name) {
-  //       filter.name = { $regex: name, $options: "i" }; // Tìm theo chuỗi có chứa 'name', không phân biệt hoa thường
-  //     }
-
-  //     // Tìm theo số lượng tồn kho
-  //     if (stock) {
-  //       filter.stock = Number(stock); // Tìm theo số lượng tồn kho (đảm bảo chuyển stock thành kiểu số)
-  //     }
-
-  //     // Truy vấn dữ liệu từ MongoDB với các bộ lọc đã tạo
-  //     const products = await this.model
-  //       .find(filter)
-  //       .populate("categoryId", "name description")
-  //       .populate("brandId", "name description")
-  //       .populate("vehicleId", "name description");
-
-  //     // Trả về danh sách sản phẩm
-  //     res.json({ products });
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //     res.status(500).json({ message: "Error fetching products", error });
-  //   }
-  // }
+  
   async getAll(req, res) {
     try {
       const { name, category, brand, vehicle, priceMin, priceMax } = req.query;

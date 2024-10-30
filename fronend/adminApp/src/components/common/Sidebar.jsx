@@ -10,7 +10,7 @@ function Sidebar({ isSidebarVisible }) {
     { name: 'Related Information', icon: <TextFields />, path: '/createrelatedinformation' },
     { name: 'ProductsList', icon: <Widgets />, path: '/list' },
     { name: 'Notifications', icon: <Notifications />, path: '/notifications' },
-    { name: 'a', icon: <ListAlt />, path: '/a' },
+    { name: 'orders', icon: <ListAlt />, path: '/orders' },
   ]
 
   return (

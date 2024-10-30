@@ -68,8 +68,9 @@ class CustomerController {
         .populate("brandId", "name description establishedYear country website")
         .populate(
           "vehicleId",
-          "name description manufacturer year type engineSize"
+          "name description manufacturer year type imageUrl engineSize"
         )
+
         .lean();
 
       if (!product) {
@@ -112,8 +113,6 @@ class CustomerController {
         .json({ message: "Error filtering products", error: error.message });
     }
   }
-
-  
 }
 
 module.exports = new CustomerController();

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import apiServer from '../../services/apiServer'
-import { AuthContext } from '../../context/AuthContext' 
+import { AuthContext } from '../../context/AuthContext'
 
 export default function Index() {
   const { addToCart } = useCart()
@@ -13,14 +13,14 @@ export default function Index() {
 
   const navigate = useNavigate()
 
-  const { user } = useContext(AuthContext) 
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     // Gọi API để lấy sản phẩm
     const fetchData = async () => {
       try {
         const featuredData = await apiServer.getFeaturedProducts()
-        console.log('Featured Products:', featuredData) 
+        console.log('Featured Products:', featuredData)
         setFeaturedProducts(featuredData)
 
         const specialData = await apiServer.getSpecialProducts()
@@ -42,7 +42,7 @@ export default function Index() {
 
   const handleProductClick = id => {
     console.log('ID--------:', id)
-    navigate(`/product/${id}`) 
+    navigate(`/product/${id}`)
   }
 
   return (
@@ -91,7 +91,7 @@ export default function Index() {
                       </span>
                     </a>
                   </div>
-                  <img src={special.imageUrl} className="w-52 h-52 " alt={special.name} />
+                  <img src={special.imageUrl[0]} className="w-52 h-52 " alt={special.name} />
                 </div>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function Index() {
               >
                 <div className="overflow-hidden transform transition-transform duration-300 group-hover:-translate-y-4">
                   <img
-                    src={featured.imageUrl}
+                    src={featured.imageUrl[0]}
                     className="w-full mt-5 pt-10 h-80 transform transition-transform duration-300 group-hover:-translate-y-4"
                     alt={featured.name}
                   />

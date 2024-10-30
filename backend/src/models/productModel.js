@@ -14,15 +14,19 @@ const productSchema = new mongoose.Schema({
     ref: "Brand",
     required: true,
   },
-  vehicleId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Vehicle",
-    required: true,
-  },
+  vehicleId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+      required: true,
+    },
+  ],
+
   itemCode: { type: String, default: "" }, // Không bắt buộc
   stock: { type: Number }, // Không bắt buộc, mặc định là 0
-  imageUrl: { type: String, default: "" }, // Không bắt buộc
-
+  imageUrl: [{ type: String, default: "" }], // Không bắt buộc
+  numReviews: { type: Number, default: 0 },
+  averageRating: { type: Number, default: 0 },
   specifications: {
     size: { type: String, default: "" }, // Không bắt buộc
     material: { type: String, default: "" }, // Không bắt buộc

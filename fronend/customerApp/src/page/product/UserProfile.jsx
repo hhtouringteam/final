@@ -15,7 +15,6 @@ const UserProfile = () => {
   const [filterStatus, setFilterStatus] = useState('all') // State cho lọc theo trạng thái
   const navigate = useNavigate()
 
-
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api'
 
   useEffect(() => {
@@ -23,11 +22,10 @@ const UserProfile = () => {
       navigate('/login')
     }
 
-  
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/orders/${user.userId}`)
-        setOrders(response.data) 
+        setOrders(response.data)
       } catch (error) {
         console.error('Không tìm thấy đơn hàng', error.response?.data?.message || error.message)
         toast.error('Không tìm thấy đơn hàng hoặc đã xảy ra lỗi.')
@@ -42,13 +40,12 @@ const UserProfile = () => {
 
   const handleExpandOrder = orderId => {
     if (expandedOrder === orderId) {
-      setExpandedOrder(null) 
+      setExpandedOrder(null)
     } else {
-      setExpandedOrder(orderId) 
+      setExpandedOrder(orderId)
     }
   }
 
- 
   const handleMarkAsReceived = async orderId => {
     try {
       const response = await axios.put(`${API_BASE_URL}/orders/${orderId}/status`, { status: 'Received' })
@@ -56,7 +53,7 @@ const UserProfile = () => {
       const updatedOrder = response.data
 
       setOrders(prevOrders =>
-        prevOrders.map(order => (order._id === orderId ? { ...order, status: updatedOrder.status } : order)),
+        prevOrders.map(order => (order._id === orderId ? { ...order, orderStatus: updatedOrder.orderStatus } : order)),
       )
       toast.success('Đã nhận hàng thành công!')
     } catch (error) {
@@ -65,16 +62,16 @@ const UserProfile = () => {
     }
   }
 
-
   const handleLogout = () => {
-    logout() 
+    logout()
     navigate('/login')
   }
 
-
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || order.status === filterStatus
+    const matchesStatus =
+      filterStatus === 'all' ||
+      (order.paymentStatus && order.paymentStatus.toLowerCase() === filterStatus.toLowerCase())
     return matchesSearch && matchesStatus
   })
 
@@ -109,7 +106,7 @@ const UserProfile = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Lịch sử đơn hàng</h2>
 
- 
+            {/* Tìm kiếm và lọc đơn hàng */}
             <div className="flex flex-col md:flex-row justify-between mb-4">
               <input
                 type="text"
@@ -124,11 +121,10 @@ const UserProfile = () => {
                 onChange={e => setFilterStatus(e.target.value)}
               >
                 <option value="all">Tất cả trạng thái</option>
-                <option value="Pending">Pending</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Failed">Failed</option>
+                <option value="canceled">Canceled</option>
               </select>
             </div>
 
@@ -139,7 +135,8 @@ const UserProfile = () => {
                     <tr>
                       <th className="py-2 px-4 border-b">Mã đơn hàng</th>
                       <th className="py-2 px-4 border-b">Ngày đặt</th>
-                      <th className="py-2 px-4 border-b">Trạng thái</th>
+                      <th className="py-2 px-4 border-b">Trạng thái thanh toán</th>
+                      <th className="py-2 px-4 border-b">Trạng thái đơn hàng</th>
                       <th className="py-2 px-4 border-b">Phương thức thanh toán</th>
                       <th className="py-2 px-4 border-b">Tổng tiền</th>
                       <th className="py-2 px-4 border-b">Chi tiết</th>
@@ -153,7 +150,8 @@ const UserProfile = () => {
                           <td className="py-2 px-4 border-b">#{order._id}</td>
                           <td className="py-2 px-4 border-b">{new Date(order.createdAt).toLocaleString()}</td>
                           <td className="py-2 px-4 border-b capitalize">{order.paymentStatus}</td>
-                          <td className="py-2 px-4 border-b">{order.paymentMethod || 'MoMo'}</td>
+                          <td className="py-2 px-4 border-b capitalize">{order.orderStatus}</td>
+                          <td className="py-2 px-4 border-b">{order.paymentMethod}</td>
                           <td className="py-2 px-4 border-b">{order.totalPrice.toLocaleString()} VND</td>
                           <td className="py-2 px-4 border-b">
                             <button
@@ -165,7 +163,7 @@ const UserProfile = () => {
                           </td>
                           <td className="py-2 px-4 border-b">
                             {/* Thêm nút "Đã Nhận Hàng" nếu trạng thái là "Delivered" */}
-                            {order.status === 'Delivered' && (
+                            {order.orderStatus === 'Delivered' && order.paymentStatus === 'Paid' && (
                               <button
                                 className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                                 onClick={() => handleMarkAsReceived(order._id)}
@@ -174,14 +172,14 @@ const UserProfile = () => {
                               </button>
                             )}
                             {/* Nếu đơn hàng đã nhận hàng, hiển thị trạng thái */}
-                            {order.status === 'Received' && (
+                            {order.orderStatus === 'Received' && (
                               <span className="text-green-600 font-semibold">Đã Nhận Hàng</span>
                             )}
                           </td>
                         </tr>
                         {expandedOrder === order._id && (
                           <tr>
-                            <td colSpan="7" className="bg-gray-100">
+                            <td colSpan="8" className="bg-gray-100">
                               <div className="p-4">
                                 <h4 className="font-semibold mb-2">Chi tiết sản phẩm:</h4>
                                 <ul className="list-disc list-inside">
@@ -193,11 +191,13 @@ const UserProfile = () => {
                                     </li>
                                   ))}
                                 </ul>
-                                {order.paymentMethod === 'MoMo' && order.status === 'paid' && (
-                                  <div className="mt-4">
-                                    <span className="font-semibold">Thanh toán qua:</span> MoMo
-                                  </div>
-                                )}
+                                {/* Hiển thị thêm thông tin nếu cần */}
+                                <div className="mt-4">
+                                  <span className="font-semibold">Phương thức thanh toán:</span> {order.paymentMethod}
+                                </div>
+                                <div className="mt-2">
+                                  <span className="font-semibold">Trạng thái đơn hàng:</span> {order.orderStatus}
+                                </div>
                               </div>
                             </td>
                           </tr>
