@@ -19,11 +19,9 @@ function Sidebar({ isSidebarVisible }) {
         isSidebarVisible ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      {/* Logo và Tiêu đề */}
       <div className="p-4 flex items-center justify-center border-b border-gray-700">
         <span className="text-xl font-semibold pt-1">HHTOURINGTEAM</span>
       </div>
-      {/* Mục điều hướng */}
       <nav className="mt-4">
         <ul>
           {navItems.map((item, index) => (

@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext'
 import { useWishlist } from '../../context/WishlistContext'
 import { useParams, NavLink } from 'react-router-dom'
 import apiServer from '../../services/apiServer'
-
+import { formatVND } from '../../utils/formatMoney'
 import CompatibleVehicles from '../../componernProduct/CompatibleVehicles'
 import Description from '../../componernProduct/Description'
 import Specification from '../../componernProduct/Specification'
@@ -86,24 +86,21 @@ export default function ProductDetail() {
         console.error('Error fetching reviews:', error)
       }
     }
-
     const fetchCompatibleVehicles = async () => {
       try {
         const data = await apiServer.getCompatibleVehicles(id)
         setCompatibleVehicles(data)
+        console.log('Compatible Vehicles:', data)
       } catch (error) {
         console.error('Error fetching compatible vehicles:', error)
       }
     }
-
     if (product && product.categoryId) {
       const fetchRelatedProducts = async () => {
         try {
-          console.log('Category ID:', product.categoryId) // Kiểm tra xem categoryId có được lấy ra không
+          console.log('Category ID:', product.categoryId)
           const relatedData = await apiServer.getProductsByCategory(product.categoryId._id)
-
-          console.log('Related Data:', relatedData) // Kiểm tra dữ liệu sản phẩm liên quan
-
+          console.log('Related Data:', relatedData)
           if (relatedData && Array.isArray(relatedData)) {
             const filteredRelatedProducts = relatedData.filter(p => p._id !== product._id)
             setRelatedProducts(filteredRelatedProducts)
@@ -150,25 +147,23 @@ export default function ProductDetail() {
     setQuantity(prevQuantity => (prevQuantity > 1 ? prevQuantity - 1 : 1))
   }
 
-  // Thêm vào giỏ hàng
   const handleAddToCart = () => {
     const productToAdd = {
       _id: product._id,
       name: product.name,
-      imageUrl: images[currentIndex],
+      imageUrl: images,
       price: product.price,
       quantity: quantity,
     }
-
+    console.log('handleAddToCart', handleAddToCart)
     addToCart(productToAdd)
   }
 
-  // Thêm vào wishlist
   const handleWishlist = () => {
     const productToAdd = {
       _id: product._id,
       name: product.name,
-      imageUrl: images[currentIndex],
+      imageUrl: images,
       price: product.price,
       inStock: product.inStock,
     }
@@ -218,9 +213,7 @@ export default function ProductDetail() {
         <div className="w-1/2 pl-10">
           <h2 className="text-3xl font-semibold">{product.name}</h2>
 
-          <p className="text-xl text-gray-700 mt-2">
-            {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-          </p>
+          <p className="text-xl text-gray-700 mt-2">{formatVND(product.price)}</p>
           <p className="text-gray-600 mt-4">{product.shortDescription}</p>
 
           <div className="mt-6">
@@ -299,7 +292,7 @@ export default function ProductDetail() {
             }`}
             onClick={() => setActiveTab('compatibleVehicles')}
           >
-            Các Loại Xe Có Thể Gắn Được
+            Vehicle Types That Can Be Mounted
           </button>
           <button
             className={`py-2 px-4 focus:outline-none ${
@@ -341,20 +334,18 @@ export default function ProductDetail() {
 
       {/* Các Sản Phẩm Liên Quan */}
       <div className="w-full mt-10">
-        <h3 className="text-2xl font-semibold mb-4">Các Sản Phẩm Liên Quan</h3>
+        <h3 className="text-2xl font-semibold mb-4">Related Products</h3>
         <div className="flex flex-wrap gap-4">
-          {relatedProducts.length > 0 ? (
+          {relatedProducts.length > 0 ? ( 
             relatedProducts.map(relatedProduct => (
               <div key={relatedProduct._id} className="w-1/4 p-4 border border-gray-200 rounded">
                 <img
-                  src={relatedProduct.imageUrl}
+                  src={relatedProduct.imageUrl[0]}
                   alt={relatedProduct.name}
                   className="w-full h-32 object-cover rounded"
                 />
                 <h4 className="mt-2 text-lg font-medium">{relatedProduct.name}</h4>
-                <p className="text-gray-700 mt-2">
-                  {relatedProduct.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                </p>
+                <p className="text-gray-700 mt-2">{formatVND(relatedProduct.price)}</p>
               </div>
             ))
           ) : (

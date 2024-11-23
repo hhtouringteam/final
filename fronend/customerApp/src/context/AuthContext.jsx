@@ -6,13 +6,12 @@ import { jwtDecode } from 'jwt-decode'
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null) // Giu thong tin cua User
+  const [user, setUser] = useState(null) 
   const [loading, setLoading] = useState(true)
 
-  // Hàm đăng nhập
   const login = token => {
     try {
-      const decoded = jwtDecode(token) // Giải mã token
+      const decoded = jwtDecode(token) 
       console.log('token', decoded)
       const userData = {
         userId: decoded.userId || decoded._id,
@@ -20,25 +19,23 @@ export const AuthProvider = ({ children }) => {
         username: decoded.username,
         email: decoded.email,
         avatar: decoded.avatar,
-        token, // Lưu token vào userData để sử dụng sau
+        token, 
       }
       console.log('  console.log(userData)', userData)
       setUser(userData)
-      localStorage.setItem('authToken', token) // Lưu token vào localStorage
-      localStorage.setItem('user', JSON.stringify(userData)) // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('authToken', token)
+      localStorage.setItem('user', JSON.stringify(userData)) 
     } catch (error) {
       console.error('Token không hợp lệ', error)
     }
   }
 
-  // Hàm đăng xuất
   const logout = () => {
     setUser(null)
     localStorage.removeItem('authToken')
     localStorage.removeItem('user')
   }
 
-  // Kiểm tra token khi ứng dụng khởi động
   useEffect(() => {
     const token = localStorage.getItem('authToken')
     if (token) {
@@ -55,12 +52,12 @@ export const AuthProvider = ({ children }) => {
           }
           setUser(userData)
         } else {
-          console.log('Token đã hết hạn')
+          console.log('Token has expired')
           localStorage.removeItem('authToken')
           localStorage.removeItem('user')
         }
       } catch (error) {
-        console.error('Lỗi giải mã token:', error)
+        console.error('Token decoding error:', error)
         localStorage.removeItem('authToken')
         localStorage.removeItem('user')
       }

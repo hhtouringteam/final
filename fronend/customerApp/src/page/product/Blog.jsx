@@ -1,43 +1,41 @@
-
+// src/components/Blog.js
 
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaCalendarAlt, FaUser } from 'react-icons/fa'
 
-
 const blogPosts = [
   {
     id: 1,
-    title: '10 Mẹo Bảo Dưỡng Xe Máy Để Kéo Dài Tuổi Thọ',
+    title: '10 Motorcycle Maintenance Tips to Extend Its Lifespan',
     date: '2024-04-15',
     author: 'Nguyen Van Tung',
     excerpt:
-      'Bảo dưỡng xe máy định kỳ không chỉ giúp xe chạy mượt mà mà còn kéo dài tuổi thọ cho xe. Dưới đây là 10 mẹo bảo dưỡng xe máy hiệu quả...',
+      'Regular motorcycle maintenance not only ensures smooth rides but also extends the lifespan of your bike. Here are 10 effective maintenance tips...',
     imageUrl: 'https://images.pexels.com/photos/1191109/pexels-photo-1191109.jpeg?auto=compress&cs=tinysrgb&w=600',
-    content: 'Nội dung chi tiết của bài viết...',
+    content: 'Detailed content of the article...',
   },
   {
     id: 2,
-    title: 'Xu Hướng Mâm Xe Máy Năm 2024: Những Thiết Kế Đột Phá',
+    title: '2024 Motorcycle Rim Trends: Innovative Designs',
     date: '2024-03-22',
-    author: 'Trần Thị Mỹ Hằng',
+    author: 'Tran Thi My Hang',
     excerpt:
-      'Mâm xe máy không chỉ là phần trang trí mà còn ảnh hưởng đến hiệu suất và thẩm mỹ của xe. Năm 2024, những xu hướng thiết kế mâm xe máy đang dần nổi lên...',
+      'Motorcycle rims are not just decorative elements; they also impact the performance and aesthetics of your bike. In 2024, new rim design trends are emerging...',
     imageUrl: 'https://images.pexels.com/photos/1191146/pexels-photo-1191146.jpeg?auto=compress&cs=tinysrgb&w=600',
-    content: 'Nội dung chi tiết của bài viết...',
+    content: 'Detailed content of the article...',
   },
   {
     id: 3,
-    title: 'So Sánh Phuộc Xe Máy Truyền Thống và Phuộc Nâng Cao',
+    title: 'Comparing Traditional and Advanced Motorcycle Forks',
     date: '2024-02-10',
-    author: 'Lê Văn Khải',
+    author: 'Le Van Khai',
     excerpt:
-      'Phuộc xe máy đóng vai trò quan trọng trong việc cải thiện khả năng vận hành và cảm giác lái. Bài viết này sẽ so sánh giữa phuộc truyền thống và phuộc nâng cao...',
+      'Motorcycle forks play a crucial role in enhancing the handling and ride comfort. This article compares traditional forks with advanced suspension systems...',
     imageUrl:
       'https://images.pexels.com/photos/52538/motorcycle-motor-cylinder-technology-52538.jpeg?auto=compress&cs=tinysrgb&w=600',
-    content: 'Nội dung chi tiết của bài viết...',
+    content: 'Detailed content of the article...',
   },
-
 ]
 
 const Blog = () => {
@@ -59,7 +57,7 @@ const Blog = () => {
               </div>
               <p className="text-gray-700 mb-4">{post.excerpt}</p>
               <Link to={`/blog/${post.id}`} className="text-blue-500 hover:underline font-medium">
-                Đọc thêm
+                Read More
               </Link>
             </div>
           </div>

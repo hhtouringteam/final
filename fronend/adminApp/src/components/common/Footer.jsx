@@ -11,11 +11,11 @@ const Footer = ({ isSidebarVisible }) => {
       <div className="text-center w-full px-4 text-sm md:text-base  ">
         <p>
           <a href="!" className="text-blue-400 hover:underline">
-            CoreUI Bootstrap Admin Template
+          Hhtouringteam Admin Dashboard
           </a>{' '}
-          © 2023 creativeLabs. Powered by{' '}
+          © 2024 creativeLabs. Powered by{' '}
           <a href="!/" className="text-blue-400 hover:underline">
-            CoreUI PRO UI Components
+          Product Management Solutions
           </a>
         </p>
       </div>

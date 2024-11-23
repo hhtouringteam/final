@@ -8,7 +8,7 @@ const crypto = require("crypto");
 const clinet_id = process.env.GG_CLIENT_ID; // Ensure this matches your Google Client ID
 const client = new OAuth2Client(clinet_id);
 const transporter = nodemailer.createTransport({
-  service: "Gmail", // Hoặc dịch vụ email bạn sử dụng
+  service: "Gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -31,30 +31,24 @@ async function verifyGoogleToken(token) {
   }
 }
 class userController {
-  // Đăng ký người dùng mới
   async register(req, res) {
     try {
       const { username, email, password, role, adminCode } = req.body;
-
-      // Kiểm tra xem username hoặc email đã tồn tại chưa
       const existingUser = await User.findOne({
         $or: [{ username }, { email }],
       });
       if (existingUser)
         return res
           .status(400)
-          .json({ error: "Tên người dùng hoặc email đã tồn tại." });
-
-      // Nếu role là 'admin', kiểm tra mã xác thực
+          .json({ error: "Username or email already exists." });
       if (role === "admin") {
         if (adminCode !== process.env.ADMIN_SECRET_CODE) {
           return res
             .status(403)
-            .json({ error: "Mã xác thực admin không hợp lệ." });
+            .json({ error: "Invalid admin authentication code." });
         }
       }
       const userRole = role === "admin" ? "admin" : "user";
-      // Tạo người dùng mới (mật khẩu sẽ được mã hóa trong middleware)
       const user = new User({
         username,
         email,
@@ -63,36 +57,29 @@ class userController {
       });
 
       await user.save();
-      res.json({ message: "Đăng ký thành công!" });
+      res.json({ message: "Registration successful!" });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Lỗi máy chủ." });
+      res.status(500).json({ error: "Server error." });
     }
   }
-  // Đăng nhập người dùng
   async login(req, res) {
     try {
       const { username, password } = req.body;
-      // Tìm người dùng
       const user = await User.findOne({ username });
       if (!user) {
-        console.log("Không tìm thấy người dùng");
+        console.log("User not found");
         return res
           .status(400)
-          .json({ error: "Tên người dùng hoặc mật khẩu không đúng." });
+          .json({ error: "Incorrect username or password." });
       }
-
-      // So sánh mật khẩu
       const validPassword = await user.comparePassword(password);
-
       if (!validPassword) {
-        console.log("Mật khẩu không đúng");
+        console.log("Incorrect password");
         return res
           .status(400)
-          .json({ error: "Tên người dùng hoặc mật khẩu không đúng." });
+          .json({ error: "Username or password is incorrect.." });
       }
-
-      // Tạo và trả về token
       const token = jwt.sign(
         {
           userId: user._id,
@@ -259,34 +246,7 @@ class userController {
       res.status(500).json({ error: "Lỗi máy chủ." });
     }
   }
-  async changePassword(req, res) {
-    try {
-      const { currentPassword, newPassword } = req.body;
-
-      // Kiểm tra xem mật khẩu mới có được cung cấp không
-      if (!newPassword)
-        return res.status(400).json({ message: "Mật khẩu mới là bắt buộc" });
-
-      const user = await User.findById(req.user.userId);
-      if (!user)
-        return res.status(404).json({ message: "Người dùng không tồn tại" });
-
-      // Xác thực mật khẩu hiện tại
-      const isMatch = await user.comparePassword(currentPassword);
-      if (!isMatch)
-        return res
-          .status(400)
-          .json({ message: "Mật khẩu hiện tại không đúng" });
-
-      // Cập nhật mật khẩu mới
-      user.password = newPassword;
-      await user.save();
-
-      res.json({ message: "Thay đổi mật khẩu thành công" });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
+  
 
   async forgotPassword(req, res) {
     try {

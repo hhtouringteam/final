@@ -24,12 +24,10 @@ export default function Header() {
         const response = await fetch('http://localhost:5000/api/admin/categories')
         const data = await response.json()
         if (response.ok) {
-          // Chuyển đổi dữ liệu thành định dạng phù hợp với react-select
           const options = data.categories.map(category => ({
             value: category._id,
             label: category.name,
           }))
-          // Thêm tùy chọn "All Categories" ở đầu danh sách
           setCategories([{ value: 'all', label: 'All Categories' }, ...options])
         } else {
           console.error('Error fetching categories:', data.message)
@@ -38,11 +36,9 @@ export default function Header() {
         console.error('Error fetching categories:', error)
       }
     }
-
     fetchCategories()
   }, [])
 
-  // Hàm xử lý khi người dùng chọn một danh mục
   const handleCategoryChange = selectedOption => {
     if (selectedOption.value === 'all') {
       // Nếu chọn "All Categories", điều hướng tới Tcsp không có bộ lọc
@@ -58,34 +54,27 @@ export default function Header() {
   // Hàm xử lý khi tìm kiếm
   const handleSearch = async e => {
     e.preventDefault()
-
     if (searchQuery.trim()) {
       try {
-        // Xây dựng query string với tham số name
         const params = new URLSearchParams()
         params.append('name', searchQuery.trim())
-
-        // Điều hướng tới trang Tcsp với query string
         navigate(`/Tcsp?${params.toString()}`)
       } catch (error) {
         console.error('Error navigating to search results:', error)
       }
     } else {
-      // Nếu tìm kiếm rỗng, điều hướng tới Tcsp không có bộ lọc
       navigate('/Tcsp')
     }
   }
-
-  // Hàm xử lý khi nhấn nút "View All Products"
   const handleViewAll = () => {
-    navigate('/Tcsp', { replace: true }) // Sử dụng replace để tránh tạo lịch sử điều hướng mới
+    navigate('/Tcsp', { replace: true })
   }
 
   return (
     <header className="bg-secondary">
       {/* Phần Welcome và các liên kết ở trên cùng */}
       <div className="container mx-auto py-1 flex justify-between items-center border-b-2 p-4 bg-slate-500">
-        <div className="text-white font-semibold">WELCOME TO PCSTAR STORE</div>
+        <div className="text-white font-semibold">WELCOME TO HHTOURINGTEAM STORE</div>
 
         <div className="flex items-center">
           <NavLink to="/store-locator" className="text-white no-underline mx-3 ">

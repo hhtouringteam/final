@@ -10,5 +10,11 @@ router.post("/payos/webhook", paymentController.handlePayOSWebhook);
 router.post("/createZaloPay", paymentController.createZaloPayPayment);
 router.post("/zalopay/webhook", paymentController.handleZaloPayWebhook);
 
+
 router.post("/updatePaymentStatus", paymentController.updatePaymentStatus);
+router.post(
+  "/updateInstallmentPaymentStatus",
+  paymentController.updateInstallmentPaymentStatus
+);
+router.post("/payInstallment", paymentController.payInstallment);
 module.exports = router;

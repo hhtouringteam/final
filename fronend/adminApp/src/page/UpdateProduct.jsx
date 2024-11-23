@@ -26,24 +26,24 @@ const UpdateProduct = () => {
       color: '',
       spokeCount: '',
       weight: '',
-      // vachi đã được loại bỏ
+      // 'vachi' has been removed
     },
   })
 
   useEffect(() => {
-    // Fetch sản phẩm bằng ID
+    // Fetch product by ID
     const fetchProduct = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/admin/products/${id}`)
         if (!response.ok) {
-          throw new Error('Không thể fetch sản phẩm!')
+          throw new Error('Cannot fetch product!')
         }
         const data = await response.json()
         const fetchedProduct = data.product
 
         console.log('Fetched Product:', fetchedProduct)
 
-        // Kiểm tra và đảm bảo rằng fetchedProduct.vehicleId là mảng
+        // Check and ensure that fetchedProduct.vehicleId is an array
         const vehicleIds = Array.isArray(fetchedProduct.vehicleId)
           ? fetchedProduct.vehicleId.map(vehicle => vehicle._id)
           : []
@@ -55,7 +55,7 @@ const UpdateProduct = () => {
           description: fetchedProduct.description || '',
           categoryId: fetchedProduct.categoryId?._id || '',
           brandId: fetchedProduct.brandId?._id || '',
-          vehicleId: vehicleIds || [], // Đảm bảo vehicleId là mảng các ObjectId
+          vehicleId: vehicleIds || [], // Ensure vehicleId is an array of ObjectIds
           stock: fetchedProduct.stock || '',
           specifications: {
             size: fetchedProduct.specifications?.size || '',
@@ -66,7 +66,7 @@ const UpdateProduct = () => {
           },
         })
       } catch (error) {
-        toast.error(error.message || 'Lỗi khi fetch sản phẩm!')
+        toast.error(error.message || 'Error fetching product!')
         console.error('Error fetching product:', error)
       }
     }
@@ -92,7 +92,7 @@ const UpdateProduct = () => {
     }
   }
 
-  // Xử lý thay đổi cho vehicleId sử dụng react-select
+  // Handle changes for vehicleId using react-select
   const handleVehicleChange = selectedOptions => {
     const selectedVehicleIds = selectedOptions ? selectedOptions.map(option => option.value) : []
     setFormData(prevFormData => ({
@@ -104,7 +104,7 @@ const UpdateProduct = () => {
   const handleUpdateProduct = async e => {
     e.preventDefault()
 
-    // Kiểm tra dữ liệu nếu cần thiết
+    // Validate data if necessary
     if (
       !formData.name ||
       !formData.price ||
@@ -113,7 +113,7 @@ const UpdateProduct = () => {
       !formData.brandId ||
       formData.vehicleId.length === 0
     ) {
-      toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!')
+      toast.error('Please fill in all required information!')
       return
     }
 
@@ -123,7 +123,7 @@ const UpdateProduct = () => {
       description: formData.description,
       categoryId: formData.categoryId,
       brandId: formData.brandId,
-      vehicleId: formData.vehicleId, // Đảm bảo vehicleId là mảng
+      vehicleId: formData.vehicleId, // Ensure vehicleId is an array
       stock: parseInt(formData.stock, 10) || 0,
       specifications: {
         size: formData.specifications.size,
@@ -143,23 +143,23 @@ const UpdateProduct = () => {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || 'Cập nhật sản phẩm không thành công!')
+        throw new Error(errorData.message || 'Product update failed!')
       }
 
       const data = await response.json()
-      toast.success('Cập nhật sản phẩm thành công!')
-      navigate('/list') // Chuyển hướng về danh sách sản phẩm sau khi cập nhật
+      toast.success('Product updated successfully!')
+      navigate('/list') // Redirect to product list after update
     } catch (error) {
-      toast.error(error.message || 'Lỗi khi cập nhật sản phẩm!')
+      toast.error(error.message || 'Error updating product!')
       console.error('Error updating product:', error)
     }
   }
 
   if (loading || !product) {
-    return <p className="text-white">Đang tải dữ liệu...</p>
+    return <p className="text-white">Loading data...</p>
   }
 
-  // Map vehicles từ EntitiesContext thành các option cho react-select
+  // Map vehicles from EntitiesContext to options for react-select
   const vehicleOptions = Array.isArray(vehicles)
     ? vehicles.map(vehicle => ({
         value: vehicle._id,
@@ -167,71 +167,71 @@ const UpdateProduct = () => {
       }))
     : []
 
-  // Tạo danh sách các option đã chọn dựa trên formData.vehicleId
+  // Create a list of selected options based on formData.vehicleId
   const selectedVehicles = vehicleOptions.filter(option => formData.vehicleId.includes(option.value))
 
   return (
     <div className="text-white px-8 pb-20">
-      <h1 className="text-4xl font-bold mb-8 text-center">Cập Nhật Sản Phẩm</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">Update Product</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Bảng Thông Tin Hiện Tại */}
+        {/* Current Information */}
         <div className="bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Thông Tin Hiện Tại</h2>
+          <h2 className="text-2xl font-semibold mb-4">Current Information</h2>
           {product && (
             <div>
               <p>
-                <strong>Tên:</strong> {product.name}
+                <strong>Name:</strong> {product.name}
               </p>
               <p>
-                <strong>Giá:</strong> {product.price.toLocaleString()} VND
+                <strong>Price:</strong> {product.price.toLocaleString()} VND
               </p>
               <p>
-                <strong>Mô tả:</strong> {product.description}
+                <strong>Description:</strong> {product.description}
               </p>
               <p>
-                <strong>Danh mục:</strong> {product.categoryId?.name || 'N/A'}
+                <strong>Category:</strong> {product.categoryId?.name || 'N/A'}
               </p>
               <p>
-                <strong>Thương hiệu:</strong> {product.brandId?.name || 'N/A'}
+                <strong>Brand:</strong> {product.brandId?.name || 'N/A'}
               </p>
               <p>
-                <strong>Phương tiện:</strong>
+                <strong>Vehicle:</strong>{' '}
                 {Array.isArray(product.vehicleId) && product.vehicleId.length > 0
                   ? product.vehicleId.map(v => v.name).join(', ')
                   : 'N/A'}
               </p>
               <p>
-                <strong>Số lượng tồn kho:</strong> {product.stock}
+                <strong>Stock Quantity:</strong> {product.stock}
               </p>
               <p>
-                <strong>Thông số kỹ thuật:</strong>
+                <strong>Specifications:</strong>
               </p>
               <p>
-                <strong>Kích thước:</strong> {product.specifications?.size || 'N/A'}
+                <strong>Size:</strong> {product.specifications?.size || 'N/A'}
               </p>
               <p>
-                <strong>Chất liệu:</strong> {product.specifications?.material || 'N/A'}
+                <strong>Material:</strong> {product.specifications?.material || 'N/A'}
               </p>
               <p>
-                <strong>Màu sắc:</strong> {product.specifications?.color || 'N/A'}
+                <strong>Color:</strong> {product.specifications?.color || 'N/A'}
               </p>
               <p>
-                <strong>Số căm:</strong> {product.specifications?.spokeCount || 'N/A'}
+                <strong>Number of Spokes:</strong> {product.specifications?.spokeCount || 'N/A'}
               </p>
               <p>
-                <strong>Trọng lượng:</strong> {product.specifications?.weight || 'N/A'} kg
+                <strong>Weight:</strong> {product.specifications?.weight || 'N/A'} kg
               </p>
             </div>
           )}
         </div>
 
-        {/* Form Cập Nhật */}
+        {/* Update Form */}
         <div className="bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Cập Nhật Thông Tin</h2>
+          <h2 className="text-2xl font-semibold mb-4">Update Information</h2>
           <form onSubmit={handleUpdateProduct} className="space-y-4 text-white">
-            {/* Tên sản phẩm */}
+            {/* Product Name */}
             <div>
-              <label className="block mb-1">Tên sản phẩm</label>
+              <label className="block mb-1">Product Name</label>
               <input
                 type="text"
                 name="name"
@@ -242,9 +242,9 @@ const UpdateProduct = () => {
               />
             </div>
 
-            {/* Giá sản phẩm */}
+            {/* Product Price */}
             <div>
-              <label className="block mb-1">Giá sản phẩm</label>
+              <label className="block mb-1">Product Price</label>
               <input
                 type="number"
                 name="price"
@@ -256,9 +256,9 @@ const UpdateProduct = () => {
               />
             </div>
 
-            {/* Mô tả sản phẩm */}
+            {/* Product Description */}
             <div>
-              <label className="block mb-1">Mô tả sản phẩm</label>
+              <label className="block mb-1">Product Description</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -268,9 +268,9 @@ const UpdateProduct = () => {
               />
             </div>
 
-            {/* Danh mục */}
+            {/* Category */}
             <div>
-              <label className="block mb-1">Danh mục</label>
+              <label className="block mb-1">Category</label>
               <select
                 name="categoryId"
                 value={formData.categoryId}
@@ -278,7 +278,7 @@ const UpdateProduct = () => {
                 className="w-full bg-gray-700 text-white p-2 rounded"
                 required
               >
-                <option value="">Chọn danh mục</option>
+                <option value="">Select Category</option>
                 {Array.isArray(categories) && categories.length > 0 ? (
                   categories.map(category => (
                     <option key={category._id} value={category._id}>
@@ -286,14 +286,14 @@ const UpdateProduct = () => {
                     </option>
                   ))
                 ) : (
-                  <option disabled>Không có danh mục nào</option>
+                  <option disabled>No categories available</option>
                 )}
               </select>
             </div>
 
-            {/* Thương hiệu */}
+            {/* Brand */}
             <div>
-              <label className="block mb-1">Thương hiệu</label>
+              <label className="block mb-1">Brand</label>
               <select
                 name="brandId"
                 value={formData.brandId}
@@ -301,7 +301,7 @@ const UpdateProduct = () => {
                 className="w-full bg-gray-700 text-white p-2 rounded"
                 required
               >
-                <option value="">Chọn thương hiệu</option>
+                <option value="">Select Brand</option>
                 {Array.isArray(brands) && brands.length > 0 ? (
                   brands.map(brand => (
                     <option key={brand._id} value={brand._id}>
@@ -309,27 +309,27 @@ const UpdateProduct = () => {
                     </option>
                   ))
                 ) : (
-                  <option disabled>Không có thương hiệu nào</option>
+                  <option disabled>No brands available</option>
                 )}
               </select>
             </div>
 
-            {/* Phương tiện sử dụng react-select */}
+            {/* Vehicle using react-select */}
             <div>
-              <label className="block mb-1">Phương tiện</label>
+              <label className="block mb-1">Vehicle</label>
               <Select
                 isMulti
                 options={vehicleOptions}
                 value={selectedVehicles}
                 onChange={handleVehicleChange}
                 className="text-black"
-                placeholder="Chọn phương tiện..."
+                placeholder="Select Vehicle..."
               />
             </div>
 
-            {/* Số lượng tồn kho */}
+            {/* Stock Quantity */}
             <div>
-              <label className="block mb-1">Số lượng tồn kho</label>
+              <label className="block mb-1">Stock Quantity</label>
               <input
                 type="number"
                 name="stock"
@@ -342,11 +342,11 @@ const UpdateProduct = () => {
 
             {/* Specifications: size */}
             <div>
-              <label className="block mb-1">Kích thước</label>
+              <label className="block mb-1">Size</label>
               <input
                 type="text"
                 name="specifications.size"
-                placeholder="Kích thước"
+                placeholder="Size"
                 value={formData.specifications.size}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
@@ -355,11 +355,11 @@ const UpdateProduct = () => {
 
             {/* Specifications: material */}
             <div>
-              <label className="block mb-1">Chất liệu</label>
+              <label className="block mb-1">Material</label>
               <input
                 type="text"
                 name="specifications.material"
-                placeholder="Chất liệu"
+                placeholder="Material"
                 value={formData.specifications.material}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
@@ -368,11 +368,11 @@ const UpdateProduct = () => {
 
             {/* Specifications: color */}
             <div>
-              <label className="block mb-1">Màu sắc</label>
+              <label className="block mb-1">Color</label>
               <input
                 type="text"
                 name="specifications.color"
-                placeholder="Màu sắc"
+                placeholder="Color"
                 value={formData.specifications.color}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
@@ -381,11 +381,11 @@ const UpdateProduct = () => {
 
             {/* Specifications: spokeCount */}
             <div>
-              <label className="block mb-1">Số căm</label>
+              <label className="block mb-1">Number of Spokes</label>
               <input
                 type="number"
                 name="specifications.spokeCount"
-                placeholder="Số căm"
+                placeholder="Number of Spokes"
                 value={formData.specifications.spokeCount}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
@@ -395,11 +395,11 @@ const UpdateProduct = () => {
 
             {/* Specifications: weight */}
             <div>
-              <label className="block mb-1">Trọng lượng (kg)</label>
+              <label className="block mb-1">Weight (kg)</label>
               <input
                 type="number"
                 name="specifications.weight"
-                placeholder="Trọng lượng"
+                placeholder="Weight"
                 value={formData.specifications.weight}
                 onChange={handleInputChange}
                 className="w-full bg-gray-700 text-white p-2 rounded"
@@ -407,9 +407,9 @@ const UpdateProduct = () => {
               />
             </div>
 
-            {/* Nút Submit */}
+            {/* Submit Button */}
             <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-              Cập nhật sản phẩm
+              Update Product
             </button>
           </form>
         </div>

@@ -4,6 +4,7 @@ class NotificationController {
   async getNotifications(req, res) {
     try {
       const notifications = await Notification.find().sort({ createdAt: -1 });
+      console.log("notifications---------------",notifications)
       res.status(200).json({ success: true, data: notifications });
     } catch (error) {
       console.error("Error fetching notifications:", error);

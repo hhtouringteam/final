@@ -24,17 +24,17 @@ function Login() {
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || 'Đã xảy ra lỗi')
+        throw new Error(errorData.error || 'An error occurred')
       }
 
       const data = await res.json()
       console.log(data)
       login(data.token)
       console.log(data.token)
-      alert('Đăng nhập thành công!')
+      alert(' Login successful!')
       navigate('/dashboard')
     } catch (err) {
-      alert(err.message || 'ádas')
+      alert(err.message || 'erros')
     }
   }
 

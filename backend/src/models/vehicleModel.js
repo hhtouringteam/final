@@ -6,7 +6,7 @@ const vehicleSchema = new mongoose.Schema(
     description: { type: String },
     manufacturer: { type: String }, // Nhà sản xuất
     year: { type: Number }, // Năm sản xuất
-    imageUrl: { type: String, default: "" },
+    imageUrl: [{ type: String, default: "" }],
     type: {
       type: String,
     },

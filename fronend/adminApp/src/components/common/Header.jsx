@@ -57,12 +57,9 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
         isSidebarVisible ? 'ml-64 w-[calc(100%-16rem)]' : 'ml-0 w-full'
       }`}
     >
-      {/* Tiêu đề và điều hướng bên trái */}
       <div className="flex items-center space-x-4">
-        {/* Biểu tượng hamburger menu */}
         <Menu className="text-white cursor-pointer" onClick={toggleSidebar} />
         <nav className="hidden md:flex space-x-4 text-white">
-          {/* Ẩn menu trên màn hình nhỏ hơn */}
           <a href="/dashboard" className="hover:underline">
             Dashboard
           </a>
@@ -76,7 +73,6 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
       </div>
 
       <div className="flex items-center space-x-4">
-        {/* Biểu tượng thông báo với số lượng */}
         <div className="relative">
           <NavLink to="/notifications" className="flex items-center">
             <Notifications className="text-white cursor-pointer" />
@@ -99,17 +95,11 @@ const Header = ({ toggleSidebar, isSidebarVisible }) => {
             )}
           </NavLink>
         </div>
-
-        {/* Hiển thị tên người dùng */}
-
-        {/* Biểu tượng cài đặt với liên kết đến trang Settings */}
         <a href="/admin">
           <Settings className="text-white cursor-pointer" />
         </a>
-
-        {/* Hiển thị avatar người dùng */}
         <img
-          src={user.avatar} // Sử dụng avatar từ AuthContext, hoặc ảnh mặc định nếu không có
+          src={user.avatar || 'http://localhost:5000/uploads/screenshot_1732263087.png'}
           alt="User Avatar"
           className="w-8 h-8 rounded-full cursor-pointer"
         />

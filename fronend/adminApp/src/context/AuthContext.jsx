@@ -6,15 +6,12 @@ export const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-
-  // Hàm đăng nhập
   const login = token => {
     try {
-      const decoded = jwtDecode(token) // Giải mã token
-      const currentTime = Date.now() / 1000 // Thời gian hiện tại (tính bằng giây)
-
+      const decoded = jwtDecode(token) 
+      const currentTime = Date.now() / 1000 
       if (decoded.exp < currentTime) {
-        console.error('Token đã hết hạn')
+        console.error('Token has expired')
         return
       }
       const userData = {
@@ -23,17 +20,15 @@ export const AuthProvider = ({ children }) => {
         username: decoded.username,
         email: decoded.email,
         avatar: decoded.avatar,
-        token, // Lưu token vào userData để sử dụng sau
+        token, 
       }
       setUser(userData)
-      localStorage.setItem('authToken', token) // Lưu token vào localStorage
-      localStorage.setItem('user', JSON.stringify(userData)) // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('authToken', token) 
+      localStorage.setItem('user', JSON.stringify(userData)) 
     } catch (error) {
-      console.error('Token không hợp lệ', error)
+      console.error('Token is invalid', error)
     }
   }
-
-  // Hàm đăng xuất
   const logout = () => {
     setUser(null)
     localStorage.removeItem('authToken')

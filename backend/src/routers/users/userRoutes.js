@@ -21,7 +21,7 @@ router.delete(
   authMiddleware("admin"),
   userController.deleteUser
 );
-router.put("/change-password", authMiddleware, userController.changePassword);
+
 router.post("/forgot-password", userController.forgotPassword);
 router.post(
   "/avatar/:id",

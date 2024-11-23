@@ -34,6 +34,11 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    totalPaid: {
+      type: Number,
+      default: 0,
+    },
+  
     installmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Installment" },
     billingInfo: {
       username: String,
@@ -58,6 +63,7 @@ const orderSchema = new mongoose.Schema(
           "failed",
           "CANCELED",
           "cancelled",
+          "Partial",
         ],
         message: "{VALUE} is not a valid payment status",
       },
@@ -68,6 +74,7 @@ const orderSchema = new mongoose.Schema(
       enum: ["Processing", "Confirmed", "Shipped", "Delivered", "Cancelled"],
       default: "Processing",
     },
+
     createdAt: {
       type: Date,
       default: Date.now,

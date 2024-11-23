@@ -19,14 +19,15 @@ class OrderController {
         paymentMethod,
         billingInfo,
       } = req.body;
-
+      console.log("create", req.body);
       // Kiểm tra các trường bắt buộc
       if (
         !userId ||
         !cartItems ||
         !totalPrice ||
         !billingInfo ||
-        !paymentMethod
+        !paymentMethod 
+   
       ) {
         return res
           .status(400)
@@ -45,7 +46,7 @@ class OrderController {
         paymentMethod,
         billingInfo,
       });
-
+      console.log("newOrder created", newOrder);
       const savedOrder = await newOrder.save();
 
       // **Sau đó, nếu có trả góp, tạo bản ghi Installment**
@@ -60,6 +61,7 @@ class OrderController {
           ...installmentData,
         });
         const savedInstallment = await installment.save();
+        console.log("savedInstallment created", savedInstallment);
         installmentId = savedInstallment._id;
 
         // **Cập nhật installmentId vào đơn hàng**
@@ -216,7 +218,7 @@ class OrderController {
   }
   async lowstock(req, res) {
     try {
-      const lowStockProducts = await Product.find({ stock: { $lt: 10 } }) // Lọc các sản phẩm có stock dưới 10
+      const lowStockProducts = await Product.find({ stock: { $lt: 15 } }) // Lọc các sản phẩm có stock dưới 10
         .select("name stock") // Chỉ lấy tên và số lượng tồn kho
         .sort({ stock: 1 }) // Sắp xếp theo số lượng tồn kho tăng dần
         .limit(5); // Giới hạn kết quả trả về
@@ -310,6 +312,31 @@ class OrderController {
     } catch (error) {
       console.error("Error fetching order details:", error);
       res.status(500).json({ message: "Error fetching order details." });
+    }
+  }
+  async getOrderByTransId(req, res) {
+    try {
+      const { app_trans_id, orderCode } = req.body;
+      let order;
+
+      if (app_trans_id) {
+        order = await Order.findOne({ app_trans_id });
+      } else if (orderCode) {
+        order = await Order.findOne({ orderCode });
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Thiếu thông tin định danh đơn hàng." });
+      }
+
+      if (!order) {
+        return res.status(404).json({ message: "Không tìm thấy đơn hàng." });
+      }
+
+      res.status(200).json({ order });
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      res.status(500).json({ message: "Lỗi server nội bộ." });
     }
   }
 }

@@ -8,7 +8,7 @@ const orderRouters = require("./order/orderRoutes");
 const emailRouters = require("./email/emailRouters");
 const notificationRouters = require("./notification/notificationRouters");
 const reviewRouters = require("./review/reviewRoutes");
-
+const installmentRoutes = require("./installment/installmentRoutes");
 const paymentRoutes = require("./payment/paymentRoutes");
 const uploadRouter = require("../image/upload");
 function router(app) {
@@ -19,7 +19,7 @@ function router(app) {
   app.use("/api/emails", emailRouters);
   app.use("/api/notifications", notificationRouters);
   app.use("/api/reviews", reviewRouters);
-  
+  app.use("/api/installments", installmentRoutes);
   app.use("/api/payments", paymentRoutes);
   app.use("/api/uploads", uploadRouter);
 }

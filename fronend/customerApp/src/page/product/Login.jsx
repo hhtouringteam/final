@@ -73,33 +73,27 @@ export default function Login() {
       console.error('Lỗi đăng nhập:', error)
     }
   }
-
-
   const handleRegisterSubmit = async e => {
     e.preventDefault()
-
     if (registerData.password !== registerData.confirmPassword) {
-      toast.error('Mật khẩu xác nhận không khớp')
+      toast.error('Confirmation password does not match')
       return
     }
-
     const username = `${registerData.firstName}${registerData.lastName}`.replace(/\s+/g, '')
-
     try {
       await handleFetch('http://localhost:5000/api/users/auth/register', 'POST', {
         username,
         email: registerData.email,
         password: registerData.password,
       })
-      toast.success('Đăng ký thành công!')
-
+      toast.success('Registration successful!')
       const data = await handleFetch('http://localhost:5000/api/users/auth/login', 'POST', {
         username,
         password: registerData.password,
       })
       processLogin(data, navigate)
     } catch (error) {
-      console.error('Lỗi khi đăng ký:', error)
+      console.error(' Error during registration:', error)
     }
   }
 
@@ -107,9 +101,9 @@ export default function Login() {
   const handleLoginChange = e => handleChange(setLoginData, e)
   const handleRegisterChange = e => handleChange(setRegisterData, e)
 
-  const handleFacebookLogin = () => {
-    console.log('Facebook login clicked')
-  }
+  // const handleFacebookLogin = () => {
+  //   console.log('Facebook login clicked')
+  // }
 
   const handleGoogleLoginSuccess = async response => {
     try {
@@ -128,14 +122,14 @@ export default function Login() {
       console.log('Response from backend:', data) 
       if (res.ok) {
         login(data.token)
-        toast.success('Đăng nhập bằng Google thành công!')
+        toast.success('Google login successful!')
         navigate('/')
       } else {
-        toast.error('Đăng nhập bằng Google thất bại!')
+        toast.error('Google login failed')
       }
     } catch (error) {
       console.error('Google login error:', error)
-      toast.error('Có lỗi xảy ra khi đăng nhập bằng Google.')
+      toast.error('An error occurred during Google login.')
     }
   }
 
@@ -155,9 +149,9 @@ export default function Login() {
       <div className="text-center">
         <h3 className="mb-4 text-2xl font-semibold">LOGIN WITH</h3>
         <div className="flex justify-center mb-6">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded mr-2" onClick={handleFacebookLogin}>
+          {/* <button className="bg-blue-600 text-white px-4 py-2 rounded mr-2" onClick={handleFacebookLogin}>
             Facebook
-          </button>
+          </button> */}
           {/* <button className="bg-red-600 text-white px-4 py-2 rounded flex items-center" onClick={googleLogin}>
             Google+
           </button> */}

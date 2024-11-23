@@ -8,11 +8,11 @@ const installmentPaymentSchema = new mongoose.Schema(
       ref: "Installment",
       required: true,
     },
-    paymentNumber: { type: Number, required: true }, // Số thứ tự kỳ thanh toán
+    paymentNumber: { type: Number, required: true },
     amount: { type: Number, required: true },
-    dueDate: { type: Date, required: true }, // Ngày đến hạn
-    paymentDate: { type: Date },
-    status: { type: String, enum: ["Pending", "Paid"], default: "Pending" },
+    dueDate: { type: Date, required: true },
+    status: { type: String, enum: ["Pending", "Paid",'Completed', 'Overdue'], default: "Pending" },
+    paidDate: { type: Date },
   },
   { timestamps: true }
 );

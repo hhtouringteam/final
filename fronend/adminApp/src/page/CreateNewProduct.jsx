@@ -52,25 +52,25 @@ const CreateNewProduct = () => {
       })
 
       if (!response.ok) {
-        throw new Error('Lỗi khi upload hình ảnh!')
+        throw new Error('Error uploading images!')
       }
 
       const data = await response.json()
-      setImageUrl(data.imageUrls) // Lưu URL của hình ảnh đã được upload
+      setImageUrl(data.imageUrls) // Save the URLs of the uploaded images
     } catch (error) {
-      toast.error(error.message || 'Lỗi khi upload hình ảnh!')
+      toast.error(error.message || 'Error uploading images!')
     }
   }
   const handleAddProduct = async e => {
     e.preventDefault()
 
     if (!name || !price || !description || !categoryId || !brandId || !vehicleId) {
-      toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!')
+      toast.error('Please fill in all required information!')
       return
     }
 
     if (price <= 0) {
-      toast.error('Giá sản phẩm phải lớn hơn 0!')
+      toast.error('Product price must be greater than 0!')
       return
     }
     await handleUploadImages()
@@ -85,12 +85,12 @@ const CreateNewProduct = () => {
       categoryId,
       brandId,
       vehicleId,
-      itemCode: itemCode || '', // Nếu không nhập thì gán giá trị mặc định là chuỗi trống
-      stock: parseInt(stock, 10) || 0, // Nếu không nhập thì gán giá trị mặc định là 0
+      itemCode: itemCode || '', // If not entered, assign default value as empty string
+      stock: parseInt(stock, 10) || 0, // If not entered, assign default value as 0
       imageUrl: imageUrl,
       specifications: {
-        size: specifications.size || '', // Nếu không nhập thì gán giá trị mặc định là chuỗi trống
-        material: specifications.material || '', // Tương tự cho các trường khác
+        size: specifications.size || '', // If not entered, assign default value as empty string
+        material: specifications.material || '', // Similarly for other fields
         color: specifications.color || '',
         spokeCount: specifications.spokeCount || 0,
         weight: specifications.weight || 0,
@@ -103,17 +103,13 @@ const CreateNewProduct = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData),
       })
-
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(errorText || 'Thêm sản phẩm không thành công!')
+        throw new Error(errorText || 'Failed to add product!')
       }
-
       const data = await response.json()
-      toast.success('Thêm sản phẩm thành công!')
+      toast.success('Product added successfully!')
       setProducts(prevProducts => [...prevProducts, data.product])
-
-      // Reset form sau khi thêm thành công
       setName('')
       setPrice('')
       setDescription('')
@@ -134,7 +130,7 @@ const CreateNewProduct = () => {
 
       setShowConfirmation(false)
     } catch (error) {
-      toast.error(error.message || 'Lỗi khi thêm sản phẩm!')
+      toast.error(error.message || 'Error adding product!')
     }
   }
 
@@ -143,7 +139,7 @@ const CreateNewProduct = () => {
   }
 
   if (loading) {
-    return <p className="text-white">Đang tải dữ liệu...</p>
+    return <p className="text-white">Loading data...</p>
   }
   const selectedCategory = categoryId ? categories.find(cat => cat?._id === categoryId) : null
   const selectedBrand = brandId ? brands.find(brand => brand?._id === brandId) : null
@@ -154,14 +150,14 @@ const CreateNewProduct = () => {
   }))
   return (
     <div className="text-white mb-20">
-      <h1 className="text-3xl mb-6">Thêm Sản Phẩm</h1>
+      <h1 className="text-3xl mb-6">Add Product</h1>
       <form onSubmit={handleAddProduct} className="space-y-4">
-        {/* Tên sản phẩm */}
+        {/* Product Name */}
         <div>
-          <label className="block mb-1">Tên sản phẩm</label>
+          <label className="block mb-1">Product Name</label>
           <input
             type="text"
-            placeholder="Tên sản phẩm"
+            placeholder="Product Name"
             value={name}
             onChange={e => setName(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -169,12 +165,12 @@ const CreateNewProduct = () => {
           />
         </div>
 
-        {/* Giá sản phẩm */}
+        {/* Product Price */}
         <div>
-          <label className="block mb-1">Giá sản phẩm</label>
+          <label className="block mb-1">Product Price</label>
           <input
             type="number"
-            placeholder="Giá sản phẩm"
+            placeholder="Product Price"
             value={price}
             onChange={e => setPrice(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -193,16 +189,16 @@ const CreateNewProduct = () => {
           />
         </div>
 
-        {/* Danh mục */}
+        {/* Category */}
         <div>
-          <label className="block mb-1">Danh mục</label>
+          <label className="block mb-1">Category</label>
           <select
             value={categoryId}
             onChange={e => setCategoryId(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
             required
           >
-            <option value="">Chọn danh mục</option>
+            <option value="">Select Category</option>
             {categories.length > 0 ? (
               categories.map(category => (
                 <option key={category._id} value={category._id}>
@@ -210,21 +206,21 @@ const CreateNewProduct = () => {
                 </option>
               ))
             ) : (
-              <option disabled>Không có danh mục nào</option>
+              <option disabled>No categories available</option>
             )}
           </select>
         </div>
 
-        {/* Thương hiệu */}
+        {/* Brand */}
         <div>
-          <label className="block mb-1">Thương hiệu</label>
+          <label className="block mb-1">Brand</label>
           <select
             value={brandId}
             onChange={e => setBrandId(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
             required
           >
-            <option value="">Chọn thương hiệu</option>
+            <option value="">Select Brand</option>
             {brands.length > 0 ? (
               brands.map(brand => (
                 <option key={brand._id} value={brand._id}>
@@ -232,41 +228,41 @@ const CreateNewProduct = () => {
                 </option>
               ))
             ) : (
-              <option disabled>Không có thương hiệu nào</option>
+              <option disabled>No brands available</option>
             )}
           </select>
         </div>
 
-        {/* Phương tiện */}
+        {/* Vehicle */}
         <div>
-          <label className="block mb-1">Phương tiện</label>
+          <label className="block mb-1">Vehicle</label>
           <Select
             isMulti
             options={vehicleOptions}
             value={vehicleOptions.filter(option => vehicleId.includes(option.value))}
             onChange={selectedOptions => setVehicleId(selectedOptions.map(option => option.value))}
             className="text-black"
-            placeholder="Chọn phương tiện..."
+            placeholder="Select Vehicle..."
           />
         </div>
-        {/* Mã sản phẩm */}
+        {/* Product Code */}
         <div>
-          <label className="block mb-1">Mã sản phẩm</label>
+          <label className="block mb-1">Product Code</label>
           <input
             type="text"
-            placeholder="Mã sản phẩm"
+            placeholder="Product Code"
             value={itemCode}
             onChange={e => setItemCode(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
           />
         </div>
 
-        {/* Số lượng tồn kho */}
+        {/* Stock Quantity */}
         <div>
-          <label className="block mb-1">Số lượng tồn kho</label>
+          <label className="block mb-1">Stock Quantity</label>
           <input
             type="number"
-            placeholder="Số lượng tồn kho"
+            placeholder="Stock Quantity"
             value={stock}
             onChange={e => setStock(e.target.value)}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -274,32 +270,35 @@ const CreateNewProduct = () => {
           />
         </div>
 
-        {/* URL Hình ảnh */}
+        {/* Choose Images */}
+
         <div>
-          <label className="block mb-1">Chọn Hình ảnh</label>
-          <input
-            type="file"
-            multiple
-            onChange={handleImageChange}
-            className="w-full bg-gray-700 text-white p-2 rounded"
-          />
+          <label className="block mb-1">Choose Images</label>
+          <button
+            type="button"
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+            onClick={() => document.getElementById('customFileInput').click()}
+          >
+            Choose File
+          </button>
+          <input id="customFileInput" type="file" multiple onChange={handleImageChange} className="hidden" />
           <div className="mt-2 flex flex-wrap gap-2">
             {imageFiles.map((file, index) => (
               <img
                 key={index}
                 src={URL.createObjectURL(file)}
-                alt={`Product Preview ${index + 1}`}
+                alt={`Vehicle Preview ${index + 1}`}
                 className="w-20 h-20 object-cover rounded"
               />
             ))}
           </div>
         </div>
         <div>
-          <label className="block mb-1">Kích thước</label>
+          <label className="block mb-1">Size</label>
           <input
             type="text"
             name="size"
-            placeholder="Kích thước"
+            placeholder="Size"
             value={specifications.size}
             onChange={handleSpecificationsChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -308,11 +307,11 @@ const CreateNewProduct = () => {
 
         {/* Specifications: material */}
         <div>
-          <label className="block mb-1">Chất liệu</label>
+          <label className="block mb-1">Material</label>
           <input
             type="text"
             name="material"
-            placeholder="Chất liệu"
+            placeholder="Material"
             value={specifications.material}
             onChange={handleSpecificationsChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -321,11 +320,11 @@ const CreateNewProduct = () => {
 
         {/* Specifications: color */}
         <div>
-          <label className="block mb-1">Màu sắc</label>
+          <label className="block mb-1">Color</label>
           <input
             type="text"
             name="color"
-            placeholder="Màu sắc"
+            placeholder="Color"
             value={specifications.color}
             onChange={handleSpecificationsChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -334,11 +333,11 @@ const CreateNewProduct = () => {
 
         {/* Specifications: spokeCount */}
         <div>
-          <label className="block mb-1">Số căm</label>
+          <label className="block mb-1">Number of Spokes</label>
           <input
             type="number"
             name="spokeCount"
-            placeholder="Số căm"
+            placeholder="Number of Spokes"
             value={specifications.spokeCount}
             onChange={handleSpecificationsChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
@@ -347,66 +346,67 @@ const CreateNewProduct = () => {
 
         {/* Specifications: weight */}
         <div>
-          <label className="block mb-1">Trọng lượng (kg)</label>
+          <label className="block mb-1">Weight (kg)</label>
           <input
             type="number"
             name="weight"
-            placeholder="Trọng lượng"
+            placeholder="Weight"
             value={specifications.weight}
             onChange={handleSpecificationsChange}
             className="w-full bg-gray-700 text-white p-2 rounded"
           />
         </div>
 
-        {/* Nút thêm sản phẩm */}
+        {/* Add Product Button */}
         <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-          Thêm sản phẩm
+          Add Product
         </button>
       </form>
 
-      {/* Cửa sổ xác nhận */}
+      {/* Confirmation Modal */}
       {showConfirmation && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-gray-800 p-6 rounded w-1/2">
-            <h2 className="text-xl mb-4">Xác Nhận Thông Tin Sản Phẩm</h2>
+            <h2 className="text-xl mb-4">Confirm Product Information</h2>
             <p>
-              <strong>Tên:</strong> {name}
+              <strong>Name:</strong> {name}
             </p>
             <p>
-              <strong>Giá:</strong> {price}
+              <strong>Price:</strong> {price}
             </p>
             <p>
-              <strong>Danh mục:</strong> {selectedCategory?.name || 'N/A'}
+              <strong>Category:</strong> {selectedCategory?.name || 'N/A'}
             </p>
             <p>
-              <strong>Thương hiệu:</strong> {selectedBrand?.name || 'N/A'}
+              <strong>Brand:</strong> {selectedBrand?.name || 'N/A'}
+            </p>
+            
+            <p>
+              <strong>Vehicle:</strong> {selectedVehicle?.name || 'N/A'}
             </p>
             <p>
-              <strong>Phương tiện:</strong> {selectedVehicle?.name || 'N/A'}
+              <strong>Product Code:</strong> {itemCode || 'N/A'}
             </p>
             <p>
-              <strong>Mã sản phẩm:</strong> {itemCode || 'N/A'}
+              <strong>Stock Quantity:</strong> {stock}
             </p>
             <p>
-              <strong>Số lượng tồn kho:</strong> {stock}
+              <strong>Image URLs:</strong> {imageUrl || 'N/A'}
             </p>
             <p>
-              <strong>URL Hình ảnh:</strong> {imageUrl || 'N/A'}
+              <strong>Size:</strong> {specifications.size || 'N/A'}
             </p>
             <p>
-              <strong>Kích thước:</strong> {specifications.size || 'N/A'}
+              <strong>Material:</strong> {specifications.material || 'N/A'}
             </p>
             <p>
-              <strong>Chất liệu:</strong> {specifications.material || 'N/A'}
+              <strong>Color:</strong> {specifications.color || 'N/A'}
             </p>
             <p>
-              <strong>Màu sắc:</strong> {specifications.color || 'N/A'}
+              <strong>Number of Spokes:</strong> {specifications.spokeCount || 'N/A'}
             </p>
             <p>
-              <strong>Số căm:</strong> {specifications.spokeCount || 'N/A'}
-            </p>
-            <p>
-              <strong>Trọng lượng:</strong> {specifications.weight || 'N/A'} kg
+              <strong>Weight:</strong> {specifications.weight || 'N/A'} kg
             </p>
 
             <div className="mt-4 flex justify-end">
@@ -414,10 +414,10 @@ const CreateNewProduct = () => {
                 onClick={confirmAddProduct}
                 className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-700"
               >
-                Xác Nhận
+                Confirm
               </button>
               <button onClick={cancelAddProduct} className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700">
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

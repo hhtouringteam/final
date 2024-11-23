@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-
+import { formatVND } from '../utils/formatMoney'
 // Tạo context cho giỏ hàng
 const CartContext = createContext()
 
@@ -10,25 +10,17 @@ export function useCart() {
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
-    // Lấy dữ liệu từ localStorage khi khởi tạo
     const savedCart = localStorage.getItem('cart')
     return savedCart ? JSON.parse(savedCart) : []
   })
-  // Mỗi khi giỏ hàng thay đổi, lưu vào localStorage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
   }, [cart])
-
-  // Hàm thêm sản phẩm vào giỏ hàng
   const addToCart = product => {
     setCart(prevCart => {
       const existingProduct = prevCart.find(item => item._id === product._id)
-
-      // Kiểm tra giá trị price và quantity của sản phẩm
       const validPrice = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) : product.price
-
       const quantityToAdd = product.quantity || 1
-
       if (existingProduct) {
         console.log('Product already in cart, updating quantity')
         return prevCart.map(item =>
@@ -40,26 +32,19 @@ export function CartProvider({ children }) {
       }
     })
   }
-
-  // Hàm cập nhật số lượng sản phẩm
   const updateQuantity = (id, quantity) => {
-    if (quantity < 1) return // Không cho phép số lượng nhỏ hơn 1
+    if (quantity < 1) return 
     setCart(prevCart => prevCart.map(item => (item._id === id ? { ...item, quantity: quantity } : item)))
   }
-
-  // Hàm xoá sản phẩm khỏi giỏ hàng
   const removeFromCart = id => {
     setCart(prevCart => prevCart.filter(item => item._id !== id))
   }
   const clearCart = () => {
     setCart([])
   }
-  // Tính tổng số lượng sản phẩm trong giỏ
   const totalItemsInCart = cart.reduce((total, item) => total + item.quantity, 0)
 
-  // Tính tổng giá trị của giỏ hàng
   const totalPriceInCart = cart.reduce((total, item) => total + item.quantity * item.price, 0)
-
   // Lưu giỏ hàng vào localStorage khi giỏ hàng thay đổi
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -67,7 +52,15 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, clearCart, updateQuantity, removeFromCart, totalItemsInCart, totalPriceInCart }}
+      value={{
+        cart,
+        addToCart,
+        clearCart,
+        updateQuantity,
+        removeFromCart,
+        totalItemsInCart,
+        totalPriceInCart,
+      }}
     >
       {children}
     </CartContext.Provider>

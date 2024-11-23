@@ -8,26 +8,19 @@ const authMiddleware = (requiredRole) => {
     if (!authHeader) {
       return res
         .status(401)
-        .json({ message: "Không có token, truy cập bị từ chối" });
+        .json({ message: "No token provided, access denied" });
     }
-
-    const token = authHeader.split(" ")[1]; // Tách token từ header "Bearer <token>"
+    const token = authHeader.split(" ")[1]; 
     if (!token) {
-      return res.status(401).json({ message: "Token không hợp lệ" });
+      return res.status(401).json({ message: "Invalid token" });
     }
-
     try {
-      // Xác thực token JWT
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
       const user = await User.findById(decoded.userId);
-
       if (!user) {
-        console.log("Không tìm thấy người dùng với userId:", decoded.userId);
-        return res.status(404).json({ message: "Người dùng không tồn tại" });
+        console.log("User not found with userId:", decoded.userId);
+        return res.status(404).json({ message: "User does not exist" });
       }
-
-      // Lưu thông tin người dùng vào req.user
       req.user = {
         userId: user._id,
         role: user.role,
@@ -35,16 +28,13 @@ const authMiddleware = (requiredRole) => {
         email: user.email,
         avatar: user.avatar,
       };
-
-      // Kiểm tra vai trò nếu cần
       if (requiredRole && req.user.role !== requiredRole) {
-        return res.status(403).json({ message: "Bạn không có quyền truy cập" });
+        return res.status(403).json({ message: "You do not have permission to access" });
       }
-
       next();
     } catch (error) {
       console.error("Lỗi xác thực token:", error);
-      return res.status(401).json({ message: "Token không hợp lệ" });
+      return res.status(401).json({ message: "Invalid token" });
     }
   };
 };

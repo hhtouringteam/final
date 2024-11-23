@@ -3,7 +3,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { useWishlist } from '../../context/WishlistContext'
 import { useCart } from '../../context/CartContext'
-
+import { formatVND } from '../../utils/formatMoney'
 export default function Wishlist() {
   const { wishlist, removeFromWishlist } = useWishlist()
   const { addToCart } = useCart()
@@ -16,7 +16,8 @@ export default function Wishlist() {
       price: item.price,
       quantity: 1,
     }
-
+    console.log('productToAdd', productToAdd)
+    console.log('item', item)
     addToCart(productToAdd)
     removeFromWishlist(item._id)
   }
@@ -36,7 +37,7 @@ export default function Wishlist() {
                     </button>
                   </td>
                   <td className="p-4">
-                    <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-lg" />
+                    <img src={item.imageUrl[0]} alt={item.name} className="w-16 h-16 rounded-lg" />
                   </td>
                   <td className="p-4">
                     <NavLink
@@ -46,7 +47,7 @@ export default function Wishlist() {
                       {item.name}
                     </NavLink>
                   </td>
-                  <td className="p-4 text-xl font-semibold">${item.price}</td>
+                  <td className="p-4 text-xl font-semibold">{formatVND(item.price)}</td>
                   <td className="p-4 text-gray-600">{item.inStock ? 'In stock' : 'Out of stock'}</td>
                   <td className="p-4">
                     <button

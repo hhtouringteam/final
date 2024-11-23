@@ -23,9 +23,7 @@ function App() {
       <EntitiesProvider>
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
-          {/* Route cho trang login */}
           <Route path="/login" element={<LoginPage />} />
-          {/* Route cho layout admin với bảo vệ PrivateRoute */}
           <Route
             path="/*"
             element={
@@ -46,8 +44,6 @@ function App() {
             <Route path="emailogs" element={<EmailLogs />} />
             <Route path="notifications" element={<Notifications />} />
           </Route>
-          
-          {/* Chuyển hướng mặc định */}
           <Route path="" element={<Navigate to="/login" replace />} />
         </Routes>
       </EntitiesProvider>

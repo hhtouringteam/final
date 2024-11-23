@@ -9,15 +9,15 @@ import Login from './page/product/Login'
 import ProductDetail from './page/product/ProductDetail'
 import Tcsp from './page/product/Tcsp'
 import WishList from './page/product/WishList'
-import Text from './page/product/Text'
 import 'react-toastify/dist/ReactToastify.css'
 import UserProfile from './page/product/UserProfile'
 import PaymentResult from './page/product/PaymentResult'
 import StoreLocator from './page/product/StoreLocator'
 import FreeShippingReturns from './page/product/FreeShippingReturns'
-import Support from './page/product/Support' // Import Support component
+import Support from './page/product/Support'
 import Blog from './page/product/Blog'
 import BlogDetail from './page/product/BlogDetail'
+import PaymentResultInstallment from './page/product/PaymentResultInstallment'
 function App() {
   return (
     <Routes>
@@ -31,6 +31,7 @@ function App() {
         <Route path="/wishlist" element={<WishList />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/payment-result" element={<PaymentResult />} />
+        <Route path="/PaymentResultInstallment" element={<PaymentResultInstallment />} />
         <Route path="/store-locator" element={<StoreLocator />} />
         <Route path="/free-shipping-returns" element={<FreeShippingReturns />} />
         <Route path="/support" element={<Support />} />

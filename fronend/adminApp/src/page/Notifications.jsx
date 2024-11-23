@@ -24,7 +24,7 @@ export default function NotificationsPage() {
 
     fetchNotifications()
 
-    // Khi vào trang thông báo, đánh dấu tất cả là đã đọc
+    // When entering the notifications page, mark all as read
     const markAsRead = async () => {
       try {
         await fetch('http://localhost:5000/api/notifications/mark-all-as-read', {
@@ -43,9 +43,9 @@ export default function NotificationsPage() {
 
   return (
     <div className="bg-white shadow-md rounded p-4">
-      <h2 className="text-xl font-semibold mb-4">Thông Báo</h2>
+      <h2 className="text-xl font-semibold mb-4">Notifications</h2>
       {notifications.length === 0 ? (
-        <p>Không có thông báo nào.</p>
+        <p>No notifications.</p>
       ) : (
         <ul>
           {notifications.map(notification => (

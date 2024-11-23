@@ -5,32 +5,31 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Tên đăng nhập là bắt buộc"],
+      required: [true, "Username is required"],
       unique: true,
     },
     email: {
       type: String,
-      required: [true, "Email là bắt buộc"],
+      required: [true, "Email is required"],
       unique: true,
-      match: [/.+\@.+\..+/, "Vui lòng nhập một email hợp lệ"],
+      match: [/.+\@.+\..+/, "Please enter a valid email"],
     },
     password: {
       type: String,
 
-      minlength: [6, "Mật khẩu phải có ít nhất 6 ký tự"],
+      minlength: [6, "Password must be at least 6 characters long"],
     },
     googleId: { type: String, unique: true, sparse: true },
     address: { type: String },
     phoneNumber: { type: String },
-
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
     avatar: {
-      type: String, // Đây là đường dẫn đến ảnh đại diện
-      default: "", // Mặc định là rỗng nếu người dùng chưa tải lên ảnh đại diện
+      type: String, 
+      default: "", 
     },
     isActive: { type: Boolean, default: true },
     resetPasswordToken: { type: String },
@@ -39,14 +38,11 @@ const userSchema = new mongoose.Schema(
 
   { timestamps: true }
 );
-
-// Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-// Phương thức xác thực mật khẩu
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };

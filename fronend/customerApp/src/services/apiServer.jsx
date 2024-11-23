@@ -13,7 +13,6 @@ const apiServer = {
       throw error
     }
   },
-
   getFeaturedProducts: async () => {
     try {
       const response = await fetch(`${config.apiUrl}/products/featured`)
@@ -26,7 +25,6 @@ const apiServer = {
       throw error
     }
   },
-
   getBannerProducts: async () => {
     try {
       const response = await fetch(`${config.apiUrl}/products/banner`)

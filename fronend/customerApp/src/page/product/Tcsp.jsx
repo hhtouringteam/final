@@ -2,25 +2,28 @@ import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { Slider, Typography, Box, Collapse } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { formatVND } from '../../utils/formatMoney'
+import { useCart } from '../../context/CartContext' // Importing useCart hook
 
-export default function Tcsp() {
+export default function ProductListing() {
+  const { addToCart } = useCart() // Destructuring addToCart from useCart
   const [products, setProducts] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedBrands, setSelectedBrands] = useState([])
   const [selectedVehicles, setSelectedVehicles] = useState([])
   const [activeFilter, setActiveFilter] = useState('')
-  const [priceRange, setPriceRange] = useState([0, 7500])
+  const [priceRange, setPriceRange] = useState([0, 30000000]) // Updated max price to 30,000,000
   const [allCategories, setAllCategories] = useState([])
   const [allBrands, setAllBrands] = useState([])
   const [allVehicles, setAllVehicles] = useState([])
-  const [loading, setLoading] = useState(false) // Thêm state để quản lý trạng thái tải
-  const [error, setError] = useState(null) // Thêm state để quản lý lỗi
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Hàm để lấy các tham số từ URL
+  // Function to get query parameters from URL
   const useQuery = () => {
     return new URLSearchParams(location.search)
   }
@@ -31,7 +34,7 @@ export default function Tcsp() {
   const searchBrands = query.get('brand') ? query.get('brand').split(',') : []
   const searchVehicles = query.get('vehicle') ? query.get('vehicle').split(',') : []
   const searchPriceMin = query.get('priceMin') ? Number(query.get('priceMin')) : 0
-  const searchPriceMax = query.get('priceMax') ? Number(query.get('priceMax')) : 7500
+  const searchPriceMax = query.get('priceMax') ? Number(query.get('priceMax')) : 30000000 // Updated max price
 
   useEffect(() => {
     if (
@@ -86,7 +89,7 @@ export default function Tcsp() {
         if (selectedBrands.length > 0) params.append('brand', selectedBrands.join(','))
         if (selectedVehicles.length > 0) params.append('vehicle', selectedVehicles.join(','))
         if (priceRange[0] > 0) params.append('priceMin', priceRange[0])
-        if (priceRange[1] < 7500) params.append('priceMax', priceRange[1])
+        if (priceRange[1] < 30000000) params.append('priceMax', priceRange[1]) // Updated max price
 
         const response = await fetch(`http://localhost:5000/api/admin/products?${params.toString()}`)
         if (!response.ok) {
@@ -96,7 +99,7 @@ export default function Tcsp() {
         setProducts(data.products)
       } catch (error) {
         console.error('Error fetching products:', error)
-        setError('Đã xảy ra lỗi khi tải sản phẩm.')
+        setError('An error occurred while loading products.')
       }
       setLoading(false)
     }
@@ -165,14 +168,14 @@ export default function Tcsp() {
       }
     }
 
-    navigate(`/Tcsp?${params.toString()}`, { replace: true })
+    navigate(`/Tcsp?${params.toString()}`, { replace: true }) // Fixed template literal
   }
 
   const handleResetFilters = () => {
     setSelectedCategories([])
     setSelectedBrands([])
     setSelectedVehicles([])
-    setPriceRange([0, 7500])
+    setPriceRange([0, 30000000]) // Updated max price
     navigate('/Tcsp', { replace: true })
   }
 
@@ -191,32 +194,33 @@ export default function Tcsp() {
   return (
     <div className="container mx-auto mt-20 p-10">
       <div className="flex flex-wrap">
-        {/* Bộ lọc bên trái */}
+        {/* Left Filters */}
         <div className="w-full md:w-1/4 pr-4 border-r border-gray-300">
           <ul className="space-y-2">
-            {/* Nút "Xem Tất Cả Sản Phẩm" */}
+            {/* "View All Products" Button */}
             {(selectedCategories.length > 0 ||
               selectedBrands.length > 0 ||
               selectedVehicles.length > 0 ||
               priceRange[0] > 0 ||
-              priceRange[1] < 7500) && (
+              priceRange[1] < 30000000) && ( // Updated max price
               <li>
                 <button
                   onClick={handleResetFilters}
-                  className=" bg-red-500 text-white px-4 py-2  hover:bg-red-600 transition-colors"
+                  className="bg-red-500 text-white px-4 py-2 hover:bg-red-600 transition-colors w-full"
                 >
                   View All Products
                 </button>
               </li>
             )}
 
+            {/* Category Filter */}
             <li>
               <button
                 onClick={() => toggleFilter('category')}
                 className="font-bold text-left flex justify-between items-center w-full"
               >
                 <FontAwesomeIcon icon={activeFilter === 'category' ? faChevronDown : faChevronRight} className="mr-2" />
-                Danh mục
+                Category
               </button>
               <Collapse in={activeFilter === 'category'}>
                 <ul className="pl-4 mt-2 space-y-1">
@@ -237,13 +241,14 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
+            {/* Brand Filter */}
             <li>
               <button
                 onClick={() => toggleFilter('brand')}
                 className="font-bold text-left flex justify-between items-center w-full"
               >
                 <FontAwesomeIcon icon={activeFilter === 'brand' ? faChevronDown : faChevronRight} className="mr-2" />
-                Thương hiệu
+                Brand
               </button>
               <Collapse in={activeFilter === 'brand'}>
                 <ul className="pl-4 mt-2 space-y-1">
@@ -264,13 +269,14 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
+            {/* Vehicle Filter */}
             <li>
               <button
                 onClick={() => toggleFilter('vehicle')}
                 className="font-bold text-left flex justify-between items-center w-full"
               >
                 <FontAwesomeIcon icon={activeFilter === 'vehicle' ? faChevronDown : faChevronRight} className="mr-2" />
-                Phương tiện
+                Vehicle
               </button>
               <Collapse in={activeFilter === 'vehicle'}>
                 <ul className="pl-4 mt-2 space-y-1">
@@ -291,27 +297,28 @@ export default function Tcsp() {
               </Collapse>
             </li>
 
+            {/* Price Filter */}
             <li>
               <button
                 onClick={() => toggleFilter('price')}
                 className="font-bold text-left flex justify-between items-center w-full"
               >
                 <FontAwesomeIcon icon={activeFilter === 'price' ? faChevronDown : faChevronRight} className="mr-2" />
-                Lọc theo giá
+                Filter by Price
               </button>
               <Collapse in={activeFilter === 'price'}>
                 <Box pl={2} mt={2} position="relative">
-                  <Typography gutterBottom>Khoảng giá</Typography>
+                  <Typography gutterBottom>Price Range</Typography>
                   <Slider
                     value={priceRange}
                     onChange={handlePriceChange}
                     min={0}
-                    max={7500}
+                    max={30000000} // Updated max price
                     valueLabelDisplay="auto"
                     aria-labelledby="range-slider"
                   />
                   <Typography className="text-sm text-center mt-2">
-                    Giá: ${priceRange[0]} - ${priceRange[1]}
+                    Price: {formatVND(priceRange[0])} - {formatVND(priceRange[1])}
                   </Typography>
                 </Box>
               </Collapse>
@@ -319,10 +326,11 @@ export default function Tcsp() {
           </ul>
         </div>
 
+        {/* Product Listing */}
         <div className="w-full md:w-3/4">
           <h2 className="text-2xl font-bold ml-4 mb-4">Products</h2>
 
-          {loading && <p className="w-full text-center">Đang tải sản phẩm...</p>}
+          {loading && <p className="w-full text-center">Loading products...</p>}
           {error && <p className="w-full text-center text-red-500">{error}</p>}
 
           <div className="flex flex-wrap">
@@ -330,30 +338,41 @@ export default function Tcsp() {
               !error &&
               (products.length > 0 ? (
                 products.map(product => (
-                  <div key={product._id} className="w-full sm:w-1/2 lg:w-1/4 p-4 mb-10">
-                    <div className="border border-gray-200 rounded h-full flex flex-col">
+                  <Link
+                    to={`/product/${product._id}`}
+                    key={product._id}
+                    className="w-full sm:w-1/2 lg:w-1/4 p-4 mb-10 relative group" // Added 'group' class
+                  >
+                    <div className="border border-gray-200 rounded h-full flex flex-col overflow-hidden">
                       <img
-                        src={product.imageUrl || '/default-image.jpg'}
-                        className="w-52 h-52 mx-auto"
+                        src={product.imageUrl[0]}
+                        className="w-full h-52 object-cover rounded-t"
                         alt={product.name}
                       />
-                      <div className="p-4 flex-grow flex flex-col justify-between">
-                        <div>
-                          <h5 className="text-lg font-semibold">{product.name}</h5>
-                          <p className="text-sm">{product.price} VND</p>
-                        </div>
-                        <a
-                          href={`/product/${product._id}`}
-                          className="inline-block mt-2 bg-blue-500 text-white py-1 px-3 rounded self-start"
+                      {/* Content Section */}
+                      <div className="p-4 flex-grow transition-transform duration-300 transform group-hover:-translate-y-4">
+                        <h5 className="text-lg font-semibold">{product.name}</h5>
+                        <p className="text-sm text-gray-700">{formatVND(product.price)}</p>
+                      </div>
+                      {/* Add to Cart Button Section */}
+                      <div className="p-4">
+                        <button
+                          onClick={e => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            addToCart(product)
+                          }}
+                          className="w-full bg-blue-600 text-white py-2 rounded-md opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                          aria-label={`Add ${product.name} to cart`}
                         >
-                          Xem chi tiết
-                        </a>
+                          Add to Cart
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
-                <p className="w-full text-center">Không tìm thấy sản phẩm nào phù hợp.</p>
+                <p className="w-full text-center">No products found.</p>
               ))}
           </div>
         </div>

@@ -27,7 +27,7 @@ export default function EmailLogs() {
 
     fetchEmailLogs()
 
-    // Khi vào trang, đánh dấu tất cả email logs là đã đọc
+    // When entering the page, mark all email logs as read
     const markAsRead = async () => {
       try {
         await fetch('http://localhost:5000/api/emails/mark-all-as-read', {
@@ -46,21 +46,21 @@ export default function EmailLogs() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Email Gửi Đến Admin</h2>
+      <h2 className="text-xl font-semibold mb-4 text-white">Emails Sent to Admin</h2>
       {emailLogs.length === 0 ? (
-        <p>Không có email nào.</p>
+        <p>No emails.</p>
       ) : (
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Thời Gian Gửi</th>
-              <th className="py-2 px-4 border-b">Mã Đơn Hàng</th>
-              <th className="py-2 px-4 border-b">Tên Khách Hàng</th>
-              <th className="py-2 px-4 border-b">Email Khách Hàng</th>
-              <th className="py-2 px-4 border-b">Sản Phẩm</th>
-              <th className="py-2 px-4 border-b">Tổng Giá</th>
-              <th className="py-2 px-4 border-b">Số Lượng</th>
-              <th className="py-2 px-4 border-b">Thông Tin Khách Hàng</th>
+              <th className="py-2 px-4 border-b">Sent Time</th>
+              <th className="py-2 px-4 border-b">Order Code</th>
+              <th className="py-2 px-4 border-b">Customer Name</th>
+              <th className="py-2 px-4 border-b">Customer Email</th>
+              <th className="py-2 px-4 border-b">Products</th>
+              <th className="py-2 px-4 border-b">Total Price</th>
+              <th className="py-2 px-4 border-b">Quantity</th>
+              <th className="py-2 px-4 border-b">Customer Information</th>
             </tr>
           </thead>
           <tbody>
@@ -83,11 +83,11 @@ export default function EmailLogs() {
                   <td className="py-2 px-4 border-b">{email.totalPrice} VND</td>
                   <td className="py-2 px-4 border-b">{totalQuantity}</td>
                   <td className="py-2 px-4 border-b">
-                    <div>Họ và tên: {email.billingInfo?.username || 'N/A'}</div>
+                    <div>Full Name: {email.billingInfo?.username || 'N/A'}</div>
                     <div>Email: {email.billingInfo?.email || 'N/A'}</div>
-                    <div>Số điện thoại: {email.billingInfo?.phone || 'N/A'}</div>
+                    <div>Phone Number: {email.billingInfo?.phone || 'N/A'}</div>
                     <div>
-                      Địa chỉ: {email.billingInfo?.streetAddress || 'N/A'}, {email.billingInfo?.country || 'N/A'}
+                      Address: {email.billingInfo?.streetAddress || 'N/A'}, {email.billingInfo?.country || 'N/A'}
                     </div>
                   </td>
                 </tr>
